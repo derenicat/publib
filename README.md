@@ -32,7 +32,7 @@ The backend follows a classic **Layered Architecture** to ensure a clean separat
 3.  **Services:** Contain the core business logic of the application.
 4.  **Repositories:** Abstract all database interactions, providing a clean data access layer.
 
-This structure makes the application easy to test, maintain, and scale. For more details, see the [Architecture Document](./backend/documents/ARCHITECTURE.md).
+This structure makes the application easy to test, maintain, and scale.
 
 ## 🚀 Getting Started
 
@@ -64,7 +64,7 @@ To get the backend server running locally, follow these steps:
 
 ## ↔️ API Endpoints
 
-Here is a summary of the main implemented endpoints. For a full overview, see the [User Flow Document](./backend/documents/AUTH_USER_FLOW.md).
+Here is a summary of the main implemented endpoints.
 
 | Method  | Endpoint                        | Protected? | Description                                      |
 | :------ | :------------------------------ | :--------: | :----------------------------------------------- |
@@ -81,5 +81,4 @@ Here is a summary of the main implemented endpoints. For a full overview, see th
 | `POST`  | `/api/lists`                    |     ✅      | (Planned) Create a new custom list.              |
 | `POST`  | `/api/library-entries`          |     ✅      | (Planned) Add a book/movie to a list.            |
 
----
-*This project was originally specified in the [PROJECT_DOCUMENT.pdf](./backend/documents/PROJECT_DOCUMENT.pdf).*
+
