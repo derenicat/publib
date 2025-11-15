@@ -121,3 +121,36 @@ export const getUserById = async (userId) => {
 
   return filteredUser;
 };
+
+export const updateUserById = async (userId, dataToUpdate) => {
+  // Admin can update any user's data, including their role.
+  // Password updates should not be done through this function.
+  if (dataToUpdate.password) {
+    throw new AppError('This route is not for password updates.', 400);
+  }
+
+  const updatedUser = await userRepository.findByIdAndUpdate(
+    userId,
+    dataToUpdate,
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
+
+  if (!updatedUser) {
+    throw new AppError('No user found with that ID to update.', 404);
+  }
+
+  return updatedUser;
+};
+
+export const deleteUserById = async (userId) => {
+  const deletedUser = await userRepository.deleteById(userId);
+
+  if (!deletedUser) {
+    throw new AppError('No user found with that ID to delete.', 404);
+  }
+
+  return true; // Indicate successful deletion
+};

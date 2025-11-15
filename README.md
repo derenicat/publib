@@ -8,10 +8,12 @@ Publib is a web-based social platform where users can create, rate, and review t
 - **Password Management:** Robust password update and reset functionality.
 - **User Profiles:** Publicly discoverable user profiles.
 - **Advanced API Queries:** Feature-rich API with support for filtering, sorting, pagination, and field limiting.
+- **Book & Movie Library Management:** (In Progress) Functionality to add, manage, and categorize books and movies in user libraries.
+- **Custom User Lists:** (In Progress) Ability for users to create and manage custom, shareable lists (e.g., "Favorite Sci-Fi Books").
 - **Security:** Rate limiting, security headers (Helmet), and data sanitization against NoSQL injection and XSS attacks.
 - **Layered Architecture:** Clean, maintainable, and scalable code following Separation of Concerns (SoC).
 
-*(Planned features include library management, social feed, ratings/reviews, and a follow system.)*
+*(Planned features include a social feed, advanced ratings/reviews, and a follow system.)*
 
 ## 🛠️ Tech Stack
 
@@ -75,6 +77,9 @@ Here is a summary of the main implemented endpoints. For a full overview, see th
 | `GET`   | `/api/users/:id`                |     ❌      | Retrieves the public profile of a single user.   |
 | `GET`   | `/api/users/me`                 |     ✅      | Retrieves the profile of the logged-in user.     |
 | `PATCH` | `/api/users/me`                 |     ✅      | Updates the profile of the logged-in user.       |
+| `GET`   | `/api/lists`                    |     ✅      | (Planned) Get all lists for the logged-in user.  |
+| `POST`  | `/api/lists`                    |     ✅      | (Planned) Create a new custom list.              |
+| `POST`  | `/api/library-entries`          |     ✅      | (Planned) Add a book/movie to a list.            |
 
 ---
 *This project was originally specified in the [PROJECT_DOCUMENT.pdf](./backend/documents/PROJECT_DOCUMENT.pdf).*

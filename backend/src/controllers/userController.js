@@ -2,14 +2,11 @@ import catchAsync from '../utils/catchAsync.js';
 import * as userService from '../services/userService.js';
 import { convertExpiresInToMs } from '../utils/jwtHelper.js';
 
-export const getMe = catchAsync(async (req, res, next) => {
-  // The 'protect' middleware has already attached the user to the request object.
-  // We just need to send it back.
-  res.status(200).json({
-    status: 'success',
-    data: { user: req.user },
-  });
-});
+export const getMe = (req, res, next) => {
+  // This function acts as a middleware to set the user's own ID for the getUserById controller.
+  req.params.id = req.user.id;
+  next();
+};
 
 export const updateMyData = catchAsync(async (req, res, next) => {
   // Note: We are not allowing password updates here.
@@ -98,5 +95,28 @@ export const getUserById = catchAsync(async (req, res, next) => {
     data: {
       user,
     },
+  });
+});
+
+export const updateUser = catchAsync(async (req, res, next) => {
+  const { id } = req.params;
+  const updatedUser = await userService.updateUserById(id, req.body);
+
+  res.status(200).json({
+    status: 'success',
+    message: 'User updated successfully.',
+    data: {
+      user: updatedUser,
+    },
+  });
+});
+
+export const deleteUser = catchAsync(async (req, res, next) => {
+  const { id } = req.params;
+  await userService.deleteUserById(id);
+
+  res.status(204).json({
+    status: 'success',
+    data: null,
   });
 });

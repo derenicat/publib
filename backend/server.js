@@ -1,3 +1,6 @@
+// import dotenv from 'dotenv';
+// dotenv.config();
+
 // =================================================================
 // UNCAUGHT EXCEPTION HANDLER
 // Note: It is critical that this handler is BEFORE all other code.

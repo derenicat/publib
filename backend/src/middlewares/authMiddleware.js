@@ -1,7 +1,8 @@
 import AppError from '../utils/appError.js';
 import catchAsync from '../utils/catchAsync.js';
 import { User } from '../models/index.js';
-import { verifyToken } from '../utils/jwtHelper.js'; // Import verifyToken from the helper
+import { verifyToken } from '../utils/jwtHelper.js';
+import TokenBlacklist from '../models/tokenBlacklistModel.js'; // Import the TokenBlacklist model
 
 const protect = catchAsync(async (req, res, next) => {
   let token;
@@ -24,6 +25,14 @@ const protect = catchAsync(async (req, res, next) => {
 
   // 2) Verify the token using the central helper function
   const decoded = await verifyToken(token);
+
+  // 2.5) Check if the token is blacklisted
+  console.log(`[DEV LOG] Checking token against blacklist: ${token}`);
+  const isBlacklisted = await TokenBlacklist.findOne({ token });
+  console.log(`[DEV LOG] Is token blacklisted?`, isBlacklisted);
+  if (isBlacklisted) {
+    return next(new AppError('This token has been invalidated. Please log in again.', 401));
+  }
 
   // 3) Check if the user still exists
   const currentUser = await User.findById(decoded.id);
@@ -49,7 +58,21 @@ const protect = catchAsync(async (req, res, next) => {
 
   // 5) Grant access to the protected route by attaching the user to the request
   req.user = currentUser;
+  req.user.exp = decoded.exp; // Attach token expiration to req.user for logout service
   next();
 });
 
 export { protect };
+
+export const restrictTo = (...roles) => {
+  return (req, res, next) => {
+    // roles is an array, e.g., ['admin', 'lead-guide']
+    // req.user is available from the 'protect' middleware
+    if (!roles.includes(req.user.role)) {
+      return next(
+        new AppError('You do not have permission to perform this action.', 403)
+      );
+    }
+    next();
+  };
+};

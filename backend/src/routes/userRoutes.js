@@ -6,34 +6,31 @@ import {
   deleteMe,
   getAllUsers,
   getUserById,
+  updateUser,
+  deleteUser,
 } from '../controllers/userController.js';
-import { protect } from '../middlewares/authMiddleware.js';
+import { protect, restrictTo } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
-// --- Public User Routes --- //
+// --- Public Routes ---
+// This route is for getting all users and is public.
 router.get('/', getAllUsers);
-router.get('/:id', getUserById);
 
-// All routes after this middleware are protected
-router.use(protect);
+// --- Protected User-Specific Routes ---
+// These routes are for the currently logged-in user.
+// They are placed before the dynamic '/:id' route to ensure they are matched first.
+router.get('/me', protect, getMe, getUserById);
+router.patch('/update-my-password', protect, updateMyPassword);
+router.patch('/me', protect, updateMyData);
+router.delete('/me', protect, deleteMe);
 
-// Route to get, update, and delete user profile information (excluding password)
-router.route('/me').get(getMe).patch(updateMyData).delete(deleteMe);
-
-// Route to update the user's password
-router.patch('/update-my-password', updateMyPassword);
-
-// --- Library and List Routes --- //
-// These will be implemented later
-
-router.route('/me/library/books').get().post();
-router.route('/me/library/books/:id').patch().delete();
-router.route('/me/library/movies').get().post();
-router.route('/me/library/movies/:id').patch().delete();
-router.route('/me/lists').get().post();
-router.route('/me/lists/:id').get().patch().delete();
-router.route('/me/lists/:id/items').post();
-router.route('/me/lists/:id/items/:itemId').delete();
+// --- Admin and Public Dynamic Routes ---
+// These routes handle operations based on a user ID provided in the URL.
+router
+  .route('/:id')
+  .get(getUserById) // Public: Anyone can get a user's public profile by their ID.
+  .patch(protect, restrictTo('admin'), updateUser) // Protected: Only admins can update a user.
+  .delete(protect, restrictTo('admin'), deleteUser); // Protected: Only admins can delete a user.
 
 export default router;

@@ -32,6 +32,18 @@ const userRepository = {
   },
 
   /**
+   * Finds a user by their password reset token.
+   * @param {string} hashedToken - The hashed password reset token.
+   * @returns {Promise<object|null>} A Mongoose document or null.
+   */
+  async findByPasswordResetToken(hashedToken) {
+    return User.findOne({
+      passwordResetToken: hashedToken,
+      passwordResetExpires: { $gt: Date.now() },
+    });
+  },
+
+  /**
    * Finds all active users with filtering, sorting, and pagination.
    * @param {object} queryParams - The req.query object from Express.
    * @returns {Promise<Array>} An array of Mongoose documents.
@@ -71,6 +83,15 @@ const userRepository = {
    */
   async findByIdAndUpdate(id, data, options) {
     return User.findByIdAndUpdate(id, data, options);
+  },
+
+  /**
+   * Finds a user by ID and deletes them.
+   * @param {string} id - The ID of the user to delete.
+   * @returns {Promise<object|null>} The deleted Mongoose document or null if not found.
+   */
+  async deleteById(id) {
+    return User.findByIdAndDelete(id);
   },
 };
 

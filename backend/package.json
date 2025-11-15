@@ -5,10 +5,12 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js",
+    "start": "node --env-file=.env server.js",
+    "dev": "nodemon --env-file=.env server.js",
     "lint": "eslint . --ext .js",
-    "lint:fix": "eslint . --ext .js --fix"
+    "lint:fix": "eslint . --ext .js --fix",
+    "import-data": "node dev/import-dev-data.js --import",
+    "delete-data": "node dev/import-dev-data.js --delete"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
