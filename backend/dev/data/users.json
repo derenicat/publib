@@ -1,0 +1,37 @@
+[
+  {
+    "username": "admin",
+    "email": "admin@publib.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "admin"
+  },
+  {
+    "username": "johndoe",
+    "email": "john.doe@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user"
+  },
+  {
+    "username": "janesmith",
+    "email": "jane.smith@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user"
+  },
+  {
+    "username": "peterjones",
+    "email": "peter.jones@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user"
+  },
+  {
+    "username": "marywilliams",
+    "email": "mary.williams@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user"
+  }
+]
