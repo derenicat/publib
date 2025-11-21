@@ -6,5 +6,3 @@ import LibraryEntry from './libraryEntryModel.js';
 
 // Export all models
 export { User, Book, Movie, UserList, LibraryEntry };
-
-
