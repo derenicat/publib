@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import config from './env.js'; // Import the centralized config
+import config from './env.js'; // Merkezi config dosyasını import et
 
 const connectDB = async () => {
   try {

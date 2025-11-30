@@ -11,6 +11,6 @@ router.route('/search').get(searchBooks);
 
 router.route('/').get(getAllBooks);
 
-router.route('/:id').get(getBook);
+router.route('/:identifier').get(getBook);
 
 export default router;

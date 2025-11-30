@@ -64,6 +64,16 @@ const userSchema = new mongoose.Schema(
   },
   {
     timestamps: true, // Automatically manages createdAt and updatedAt fields
+    toJSON: {
+      virtuals: true,
+      transform: function (doc, ret) {
+        ret.detailPageId = ret.id; // Rename `id` to `detailPageId` for consistency
+        delete ret.id;
+        delete ret._id;
+        delete ret.__v;
+      },
+    },
+    toObject: { virtuals: true },
   }
 );
 

@@ -10,8 +10,14 @@ import {
   deleteUser,
 } from '../controllers/userController.js';
 import { protect, restrictTo } from '../middlewares/authMiddleware.js';
+import followRouter from './followRoutes.js';
 
 const router = express.Router();
+
+// Mount the followRouter at the root.
+// Requests will first be checked against followRouter's specific routes.
+// If no match, control will pass to the next routes in this file.
+router.use('/', followRouter);
 
 // --- Public Routes ---
 // Herkesin tüm kullanıcıları listeleyebileceği genel rota.

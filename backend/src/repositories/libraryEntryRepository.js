@@ -4,18 +4,20 @@ export const create = async (entryData) => {
   return LibraryEntry.create(entryData);
 };
 
+export const findById = async (id) => {
+  return LibraryEntry.findById(id);
+};
+
 export const findOne = async (query) => {
   return LibraryEntry.findOne(query);
 };
 
-export const findAll = async (query, populateOptions = {}) => {
+export const findAll = async (query, populateOptions = null) => {
   let queryBuilder = LibraryEntry.find(query);
-
-  if (populateOptions.path) {
+  if (populateOptions) {
     queryBuilder = queryBuilder.populate(populateOptions);
   }
-
-  return queryBuilder.sort({ addedAt: -1 });
+  return queryBuilder.sort({ createdAt: -1 });
 };
 
 export const deleteById = async (id) => {

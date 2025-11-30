@@ -6,13 +6,15 @@ import {
 import catchAsync from '../utils/catchAsync.js';
 
 export const addEntry = catchAsync(async (req, res, next) => {
-  const { googleBooksId, listName, status } = req.body;
+  // Doğrulayıcı ara yazılımı gerekli alanları zaten onayladı
+  const { item, itemModel, list, status } = req.body;
   const userId = req.user.id;
 
   const newEntry = await addToList({
     userId,
-    googleBooksId,
-    listName,
+    item,
+    itemModel,
+    list,
     status,
   });
 

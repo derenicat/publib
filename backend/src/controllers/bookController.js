@@ -32,7 +32,7 @@ export const searchBooks = catchAsync(async (req, res, next) => {
 });
 
 export const getBook = catchAsync(async (req, res, next) => {
-  const book = await getBookDetails(req.params.id);
+  const book = await getBookDetails(req.params.identifier);
 
   res.status(200).json({
     status: 'success',

@@ -34,7 +34,7 @@ export const searchMovies = catchAsync(async (req, res, next) => {
 export const getMovie = catchAsync(async (req, res, next) => {
   // "Smart" detail endpoint: ID'nin formatına göre veritabanından veya TMDB'den film detayını getirir.
   console.log('getMovie controller called');
-  const movie = await movieService.getMovieDetails(req.params.id);
+  const movie = await movieService.getMovieDetails(req.params.identifier);
 
   res.status(200).json({
     status: 'success',

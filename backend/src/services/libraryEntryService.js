@@ -1,44 +1,77 @@
 import * as libraryEntryRepository from '../repositories/libraryEntryRepository.js';
 import * as userListRepository from '../repositories/userListRepository.js';
+import * as activityRepository from '../repositories/activityRepository.js'; // NEW IMPORT
 import AppError from '../utils/appError.js';
 import { ensureBookExists } from './bookService.js';
+import { ensureMovieExists } from './movieService.js';
 
 export const addToList = async ({
   userId,
-  googleBooksId,
-  listName = 'My Library',
+  item: itemId, // Anlaşılırlık için yeniden adlandırma
+  itemModel,
+  list: listId, // Anlaşılırlık için yeniden adlandırma
   status,
 }) => {
-  // 1. Kitabın yerel veritabanında varlığını garantile (Get-or-Create mantığı).
-  const book = await ensureBookExists(googleBooksId);
+  // 1. Öğenin (kitap veya film) yerel veritabanımızda var olduğundan emin ol (Get-or-Create).
+  let item;
+  if (itemModel === 'Book') {
+    item = await ensureBookExists(itemId);
+  } else if (itemModel === 'Movie') {
+    item = await ensureMovieExists(itemId);
+  } else {
+    // Bu durum doğrulayıcı tarafından yakalanmalı, ancak bir önlem olarak:
+    throw new AppError('Invalid itemModel specified.', 400);
+  }
+
+  if (!item) {
+    throw new AppError('The specified item could not be found or created.', 404);
+  }
 
   // 2. Hedef listeyi bul.
-  const list = await userListRepository.findOne({ userId, name: listName });
-  if (!list) {
+  const list = await userListRepository.findById(listId);
+  if (!list || list.user.toString() !== userId) {
     throw new AppError(
-      `List with name "${listName}" not found for this user.`,
+      'List not found or you do not have permission to add to it.',
       404
     );
   }
 
-  // 3. Girişin (entry) zaten var olup olmadığını kontrol et.
+  // TÜR GÜVENLİĞİ KONTROLÜ:
+  // Listenin türü ile eklenmeye çalışılan öğenin türü eşleşmelidir.
+  // Örneğin, bir 'Book' listesine 'Movie' eklenemez.
+  if (list.type !== itemModel) {
+    throw new AppError(
+      `This list is for ${list.type}s only. You cannot add a ${itemModel} to it.`,
+      400
+    );
+  }
+
+  // 3. Girişin zaten var olup olmadığını kontrol et.
   const existingEntry = await libraryEntryRepository.findOne({
     user: userId,
-    book: book.id,
+    item: item.id,
     list: list.id,
   });
 
   if (existingEntry) {
-    // Mevcut giriş zaten varsa, tekrar eklemek yerine mevcut olanı döndür.
-    return existingEntry;
+    return existingEntry; // Zaten varsa, sadece mevcut olanı döndür.
   }
 
   // 4. Yeni kütüphane girişini oluştur.
   const newEntry = await libraryEntryRepository.create({
     user: userId,
-    book: book.id,
+    item: item.id,
+    itemModel, // Model adını ilet
     list: list.id,
     status,
+  });
+
+  // 5. Yeni kütüphane girişi için bir aktivite akışı girişi oluştur
+  await activityRepository.create({
+    user: userId,
+    type: 'LIBRARY_ENTRY_CREATED',
+    subject: newEntry.id,
+    subjectModel: 'LibraryEntry',
   });
 
   return newEntry;
@@ -47,8 +80,8 @@ export const addToList = async ({
 export const getEntriesByList = async (listId) => {
   return libraryEntryRepository.findAll(
     { list: listId },
-    // Kitap detaylarını da getirmek için 'book' alanını populate et.
-    { path: 'book' }
+    // Polimorfik 'item' alanını doldur. Mongoose, hangi koleksiyona bakacağını bilmek için itemModel'i kullanacaktır.
+    { path: 'item' }
   );
 };
 

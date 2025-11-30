@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 
-// Load environment variables from .env file
+// .env dosyasından ortam değişkenlerini yükle
 dotenv.config({ path: './.env' });
 
 const requiredEnvVars = [
@@ -21,7 +21,7 @@ const requiredEnvVars = [
   'TMDB_API_URL',
 ];
 
-// Check if all required environment variables are present
+// Gerekli tüm ortam değişkenlerinin mevcut olup olmadığını kontrol et
 requiredEnvVars.forEach((envVar) => {
   if (!process.env[envVar]) {
     console.error(`Missing required environment variable: ${envVar}`);

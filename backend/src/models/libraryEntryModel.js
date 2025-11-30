@@ -1,5 +1,8 @@
 import mongoose from 'mongoose';
 
+export const BOOK_STATUSES = ['READ', 'READING', 'WANT_TO_READ'];
+export const MOVIE_STATUSES = ['WATCHED', 'WATCHING', 'WANT_TO_WATCH'];
+
 const libraryEntrySchema = new mongoose.Schema(
   {
     user: {
@@ -26,22 +29,39 @@ const libraryEntrySchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: [
-        'READ',
-        'READING',
-        'WANT_TO_READ',
-        'WANT_TO_WATCH',
-        'WATCHING',
-        'WATCHED',
-      ],
-      default: 'WANT_TO_READ', // Not: Bu varsayılan değer, eklenen öğe film olduğunda anlamsız olabilir. İleride gözden geçirilebilir.
+      required: true,
+      validate: {
+        validator: function (value) {
+          if (this.itemModel === 'Book') {
+            return BOOK_STATUSES.includes(value);
+          }
+          if (this.itemModel === 'Movie') {
+            return MOVIE_STATUSES.includes(value);
+          }
+          return false;
+        },
+        message: (props) =>
+          `${props.value} is not a valid status for item type ${props.instance.itemModel}.`,
+      },
     },
     addedAt: {
       type: Date,
       default: Date.now,
     },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    toJSON: {
+      virtuals: true,
+      transform: function (doc, ret) {
+        // Bu model için, detailPageId anlamsal olarak mantıklı değil.
+        // Standart id'ye sadık kalacağız ve sadece yanıtı temizleyeceğiz.
+        delete ret._id;
+        delete ret.__v;
+      },
+    },
+    toObject: { virtuals: true },
+  }
 );
 
 // Bir kullanıcının aynı item'ı (kitap veya film) aynı listeye tekrar eklemesini önleriz.

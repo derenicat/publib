@@ -8,16 +8,26 @@ import {
 
 // KİTAP VARLIĞINI SAĞLAMA (GET-OR-CREATE CACHING):
 // Bir kitabın yerel veritabanında olup olmadığını kontrol eder.
+// Gelen ID'nin formatına göre akıllıca işlem yapar.
 // Eğer kitap yoksa, Google Books API'den getirir ve veritabanına kaydeder.
-// Bu, "Smart Detail Endpoint" mimarisinin bir parçasıdır.
-export const ensureBookExists = async (googleBooksId) => {
-  let book = await bookRepository.findByGoogleBooksId(googleBooksId);
+export const ensureBookExists = async (identifier) => {
+  // If the identifier is a valid MongoID, find by that.
+  if (isMongoId(identifier)) {
+    const book = await bookRepository.findById(identifier);
+    if (!book) {
+      throw new AppError('No book found with that ID in our database.', 404);
+    }
+    return book;
+  }
+
+  // Otherwise, assume it's a googleBooksId and perform get-or-create.
+  let book = await bookRepository.findByGoogleBooksId(identifier);
 
   if (book) {
     return book;
   }
 
-  const googleBook = await getGoogleBookById(googleBooksId);
+  const googleBook = await getGoogleBookById(identifier);
 
   if (!googleBook) {
     throw new AppError('No book found with that ID on Google Books.', 404);
@@ -103,14 +113,8 @@ export const getAllBooks = async (queryParams) => {
 // yoksa Google Books ID mi olduğunu akıllıca ayırt eder.
 // Eğer Google Books ID ise, `ensureBookExists` fonksiyonu aracılığıyla
 // kitabı yerelde var etme (get-or-create) mantığını tetikler.
-export const getBookDetails = async (id) => {
-  if (isMongoId(id)) {
-    const book = await bookRepository.findById(id);
-    if (!book) {
-      throw new AppError('No book found with that ID.', 404);
-    }
-    return book;
-  }
-  return ensureBookExists(id);
+export const getBookDetails = async (identifier) => {
+  // The ensureBookExists function is now smart enough to handle both ID types.
+  return ensureBookExists(identifier);
 };
 

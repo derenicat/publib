@@ -11,46 +11,50 @@ import bookRoutes from './src/routes/bookRoutes.js';
 import userListRoutes from './src/routes/userListRoutes.js';
 import libraryEntryRoutes from './src/routes/libraryEntryRoutes.js';
 import movieRoutes from './src/routes/movieRoutes.js';
+import reviewRoutes from './src/routes/reviewRoutes.js';
+import activityRoutes from './src/routes/activityRoutes.js';
 
 import globalErrorHandler from './src/middlewares/errorMiddleware.js';
 import AppError from './src/utils/appError.js';
 
 const app = express();
 
-// Core Middlewares
-app.use(helmet()); // Set security HTTP headers
+// Temel Ara Yazılımlar
+app.use(helmet()); // Güvenlik HTTP başlıklarını ayarlar
 
-// Rate limiting to prevent brute-force attacks
+// Kaba kuvvet saldırılarını önlemek için hız sınırlaması
 const limiter = rateLimit({
-  max: 100, // Max requests per IP
-  windowMs: 60 * 60 * 1000, // Per hour
+  max: 100, // IP başına maksimum istek
+  windowMs: 60 * 60 * 1000, // Saat başına
   message: 'Too many requests from this IP, please try again in an hour.',
 });
 
 app.use('/api', limiter);
 
-// Body parser, reading data from body into req.body
-app.use(express.json({ limit: '10kb' })); // Parses incoming JSON requests
-app.use(cookieParser()); // Parses incoming cookies (req.cookies)
+// Gövde ayrıştırıcı, gövdeden gelen veriyi req.body'ye okur
+app.use(express.json({ limit: '10kb' })); // Gelen JSON isteklerini ayrıştırır
+app.use(cookieParser()); // Gelen çerezleri ayrıştırır (req.cookies)
 
-// Data sanitization against NoSQL query injection and XSS
-app.use(mongoSanitize()); // Removes '$' and '.' from request body, query, and params
-app.use(xss()); // Cleans user input from malicious HTML code
+// NoSQL sorgu enjeksiyonu ve XSS'ye karşı veri temizleme
+app.use(mongoSanitize()); // İstek gövdesi, sorgu ve parametrelerden '$' and '.' from request body, query, and params
+app.use(xss()); // Kullanıcı girişini kötü amaçlı HTML kodlarından temizler
 
-// Routes
+// Rotalar
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/books', bookRoutes);
 app.use('/api/lists', userListRoutes);
 app.use('/api/library-entries', libraryEntryRoutes);
-app.use('/api/movies', movieRoutes); // To be implemented
+app.use('/api/movies', movieRoutes);
+app.use('/api/reviews', reviewRoutes);
+app.use('/api/feed', activityRoutes);
 
-// Catch-all for undefined routes
+// Tanımlanmamış rotalar için hepsini yakala
 app.use((req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 });
 
-// Global Error Handling Middleware
+// Global Hata İşleme Ara Yazılımı
 app.use(globalErrorHandler);
 
 export default app;

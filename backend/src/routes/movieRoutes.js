@@ -11,6 +11,6 @@ router.route('/search').get(searchMovies);
 
 router.route('/').get(getAllMovies);
 
-router.route('/:id').get(getMovie);
+router.route('/:identifier').get(getMovie);
 
 export default router;

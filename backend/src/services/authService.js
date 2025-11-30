@@ -4,6 +4,7 @@ import AppError from '../utils/appError.js';
 import sendEmail from '../utils/email.js';
 import crypto from 'crypto';
 import TokenBlacklist from '../models/tokenBlacklistModel.js';
+import { createDefaultList } from './userListService.js'; // Import createDefaultList
 
 export const register = async (username, email, password, passwordConfirm) => {
   const existingUser = await userRepository.findByEmail(email);
@@ -17,6 +18,9 @@ export const register = async (username, email, password, passwordConfirm) => {
     password,
     passwordConfirm,
   });
+
+  // Yeni kullanıcı için varsayılan "My Library" listesini oluştur.
+  await createDefaultList(newUser.id);
 
   const userObject = newUser.toObject();
   delete userObject.password;

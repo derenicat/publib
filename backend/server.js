@@ -1,12 +1,12 @@
 // =================================================================
-// UNCAUGHT EXCEPTION HANDLER
-// Note: It is critical that this handler is BEFORE all other code.
+// YAKALANMAYAN İSTİSNA YÖNETİCİSİ
+// Not: Bu yöneticinin diğer tüm kodlardan ÖNCE olması kritik öneme sahiptir.
 // =================================================================
 process.on('uncaughtException', (err) => {
   console.error('UNCAUGHT EXCEPTION! 💥 Shutting down...');
   console.error('Error:', err.name, err.message);
   console.error('Stack:', err.stack);
-  // 1 stands for uncaught exception
+  // 1, yakalanmayan istisna anlamına gelir
   process.exit(1);
 });
 
@@ -20,10 +20,10 @@ let server;
 
 const startServer = async () => {
   try {
-    // First, connect to the database
+    // İlk olarak, veritabanına bağlan
     await connectDB();
 
-    // Only start the server if the DB connection is successful
+    // Sunucuyu yalnızca veritabanı bağlantısı başarılı olursa başlat
     server = app.listen(port, () => {
       console.log(`Server is running on http://localhost:${port}`);
     });
@@ -36,16 +36,16 @@ const startServer = async () => {
 startServer();
 
 // =================================================================
-// UNHANDLED REJECTION HANDLER
+// İŞLENMEYEN REDDEDİLMELER YÖNETİCİSİ
 // =================================================================
 process.on('unhandledRejection', (err) => {
   console.error('UNHANDLED REJECTION! 💥 Shutting down...');
   console.error('Error:', err.name, err.message);
 
-  // Gracefully shut down the server (wait for current requests to finish)
+  // Sunucuyu düzenli bir şekilde kapat (mevcut isteklerin bitmesini bekle)
   if (server) {
     server.close(() => {
-      // 1 stands for uncaught exception
+      // 1, yakalanmayan istisna anlamına gelir
       process.exit(1);
     });
   } else {

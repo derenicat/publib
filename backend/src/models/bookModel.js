@@ -34,8 +34,31 @@ const bookSchema = new mongoose.Schema(
     pageCount: Number,
     categories: [String],
     coverImage: String,
+    averageRating: {
+      type: Number,
+      default: 0,
+      min: [0, 'Rating must be at least 0'],
+      max: [10, 'Rating cannot be more than 10'],
+      set: (val) => Math.round(val * 10) / 10,
+    },
+    ratingsCount: {
+      type: Number,
+      default: 0,
+    },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    toJSON: {
+      virtuals: true,
+      transform: function (doc, ret) {
+        ret.detailPageId = ret.id; // Rename `id` to `detailPageId`
+        delete ret.id;
+        delete ret._id;
+        delete ret.__v;
+      },
+    },
+    toObject: { virtuals: true },
+  }
 );
 
 const Book = mongoose.model('Book', bookSchema);

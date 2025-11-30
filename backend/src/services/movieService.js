@@ -5,21 +5,34 @@ import AppError from "../utils/appError.js";
 
 // FİLM VARLIĞINI SAĞLAMA (GET-OR-CREATE CACHING):
 // Bir filmin yerel veritabanında olup olmadığını kontrol eder.
+// Gelen ID'nin formatına göre akıllıca işlem yapar.
 // Eğer film yoksa, TMDB API'den getirir ve veritabanına kaydeder.
-export const ensureMovieExists = async tmdbId => {
-  let movie = await movieRepository.findByTmdbId(tmdbId);
+export const ensureMovieExists = async (identifier) => {
+  // If the identifier is a valid MongoID, find by that.
+  if (isMongoId(identifier)) {
+    const movie = await movieRepository.findById(identifier);
+    if (!movie) {
+      throw new AppError(
+        'No movie found with that ID in our database.',
+        404
+      );
+    }
+    return movie;
+  }
 
+  // Otherwise, assume it's a tmdbId and perform get-or-create.
+  let movie = await movieRepository.findByTmdbId(identifier);
   if (movie) {
     return movie;
   }
 
-  // Veritabanımızda yoksa, TMDB'den getir
-  const tmdbMovie = await tmdbService.getMovieDetails(tmdbId);
+  // If not in our DB, fetch from TMDB
+  const tmdbMovie = await tmdbService.getMovieDetails(identifier);
   if (!tmdbMovie) {
-    throw new AppError("No movie found with that ID on TMDB.", 404);
+    throw new AppError('No movie found with that ID on TMDB.', 404);
   }
 
-  // tmdbService gelen veriyi zaten şemamıza uygun hale getiriyor
+  // The 'tmdbMovie' is already mapped to our schema by the tmdbService
   movie = await movieRepository.create(tmdbMovie);
 
   return movie;

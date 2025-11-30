@@ -20,10 +20,30 @@ const movieSchema = new mongoose.Schema(
     backdropPath: String,
     releaseDate: String,
     genres: [String],
+    averageRating: {
+      type: Number,
+      default: 0,
+      min: [0, 'Rating must be at least 0'],
+      max: [10, 'Rating cannot be more than 10'],
+      // Değer atandığında, tek ondalık basamağa yuvarlar (örn: 8.75 -> 8.8)
+      set: (val) => Math.round(val * 10) / 10,
+    },
+    ratingsCount: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true,
-    toJSON: { virtuals: true },
+    toJSON: {
+      virtuals: true,
+      transform: function (doc, ret) {
+        ret.detailPageId = ret.id; // id'yi detailPageId olarak yeniden adlandır
+        delete ret.id;
+        delete ret._id;
+        delete ret.__v;
+      },
+    },
     toObject: { virtuals: true },
   }
 );
