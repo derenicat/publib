@@ -10,7 +10,7 @@ import catchAsync from '../utils/catchAsync.js';
 import { UserList } from '../models/index.js'; // checkOwnership ara yazılımı için
 
 export const createList = catchAsync(async (req, res, next) => {
-  const { name, description, isPublic } = req.body;
+  const { name, description, isPublic, type } = req.body;
   const userId = req.user.id;
 
   const newList = await createCustomList({
@@ -18,6 +18,7 @@ export const createList = catchAsync(async (req, res, next) => {
     name,
     description,
     isPublic,
+    type,
   });
 
   res.status(201).json({

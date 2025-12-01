@@ -6,13 +6,16 @@ export const create = async ({ userId, name, description, isPublic, type }) => {
 };
 
 export const findById = async (id) => {
-  return UserList.findById(id).populate({
-    path: 'entries',
-    populate: {
-      path: 'item',
-      select: 'title posterPath releaseDate backdropPath authors tmdbId googleBooksId', // Select common and useful fields
-    },
-  });
+  return UserList.findById(id)
+    .populate({
+      path: 'entries',
+      populate: {
+        path: 'item',
+        select:
+          'title posterPath releaseDate backdropPath authors tmdbId googleBooksId',
+      },
+    })
+    .populate('user', 'username email role');
 };
 
 export const findOne = async ({ userId, name }) => {
@@ -20,7 +23,15 @@ export const findOne = async ({ userId, name }) => {
 };
 
 export const findAllByUser = async (userId) => {
-  return UserList.find({ user: userId }).sort({ createdAt: -1 });
+  return UserList.find({ user: userId })
+    .sort({ createdAt: -1 })
+    .populate({
+      path: 'entries',
+      populate: {
+        path: 'item',
+        select: 'title googleBooksId tmdbId posterPath coverImage', // Sadece gerekli alanları seçelim
+      },
+    });
 };
 
 export const findAll = async (queryParams) => {
@@ -30,7 +41,7 @@ export const findAll = async (queryParams) => {
     .limitFields()
     .paginate();
 
-  return features.query;
+  return features.query.populate('entries');
 };
 
 export const findByIdAndUpdate = async (id, data) => {

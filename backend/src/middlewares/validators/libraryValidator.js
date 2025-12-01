@@ -75,7 +75,7 @@ export const addEntryValidator = [
 ];
 
 export const listIdValidator = [
-  param('listId')
+  param('id') // Changed from listId to id to match the route parameter
     .isMongoId()
     .withMessage('Invalid list ID format.'),
   handleValidationErrors,

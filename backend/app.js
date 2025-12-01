@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import mongoSanitize from 'express-mongo-sanitize';
@@ -19,12 +20,18 @@ import AppError from './src/utils/appError.js';
 
 const app = express();
 
+// CORS Configuration
+app.use(cors({
+  origin: 'http://localhost:5173', // Frontend URL
+  credentials: true, // Allow cookies
+}));
+
 // Temel Ara Yazılımlar
 app.use(helmet()); // Güvenlik HTTP başlıklarını ayarlar
 
 // Kaba kuvvet saldırılarını önlemek için hız sınırlaması
 const limiter = rateLimit({
-  max: 100, // IP başına maksimum istek
+  max: 1000, // IP başına maksimum istek (Geliştirme için artırıldı)
   windowMs: 60 * 60 * 1000, // Saat başına
   message: 'Too many requests from this IP, please try again in an hour.',
 });

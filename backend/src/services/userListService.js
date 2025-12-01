@@ -74,11 +74,14 @@ export const getList = async (listId, requestingUser) => {
     throw new AppError('No list found with that ID.', 404);
   }
 
+  // list.user populated olduğu için obje olarak gelir. ID'sini alırız.
+  const ownerId = list.user.id || list.user._id.toString();
+
   // If the list is not public, only the owner or an admin can see it.
   if (
     !list.isPublic &&
     (!requestingUser ||
-      (list.user.toString() !== requestingUser.id &&
+      (ownerId !== requestingUser.id &&
         requestingUser.role !== 'admin'))
   ) {
     throw new AppError('You do not have permission to view this list.', 403);

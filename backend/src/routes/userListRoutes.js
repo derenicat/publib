@@ -7,7 +7,7 @@ import {
   getPublicLists,
   getAllLists,
 } from '../controllers/userListController.js';
-import { protect, checkOwnership } from '../middlewares/authMiddleware.js';
+import { protect, checkOwnership, isLoggedIn } from '../middlewares/authMiddleware.js';
 import {
   createListValidator,
   listIdValidator,
@@ -37,7 +37,7 @@ router.post('/', protect, createListValidator, createList);
 // --- Generic List ID Routes (mixed public/protected access) ---
 router
   .route('/:id')
-  .get(getList) // Bu rota, liste gizli değilse herkese açık olabilir. Erişim kontrolü servis katmanında.
+  .get(isLoggedIn, getList) // Bu rota, liste gizli değilse herkese açık olabilir. Erişim kontrolü servis katmanında.
   .delete(protect, listIdValidator, checkOwnership(UserList), deleteList); // Silme işlemi korumalıdır.
 
 

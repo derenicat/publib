@@ -29,7 +29,11 @@ export const addToList = async ({
 
   // 2. Hedef listeyi bul.
   const list = await userListRepository.findById(listId);
-  if (!list || list.user.toString() !== userId) {
+  
+  // list.user populated olduğu için ID'sini almalıyız.
+  const listOwnerId = list ? (list.user.id || list.user._id.toString()) : null;
+
+  if (!list || listOwnerId !== userId) {
     throw new AppError(
       'List not found or you do not have permission to add to it.',
       404
@@ -54,7 +58,12 @@ export const addToList = async ({
   });
 
   if (existingEntry) {
-    return existingEntry; // Zaten varsa, sadece mevcut olanı döndür.
+    // Zaten varsa ve statü farklıysa güncelle
+    if (existingEntry.status !== status) {
+      existingEntry.status = status;
+      await existingEntry.save();
+    }
+    return existingEntry; 
   }
 
   // 4. Yeni kütüphane girişini oluştur.

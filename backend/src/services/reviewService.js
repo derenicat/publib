@@ -23,12 +23,16 @@ export const createReview = async ({
     throw new AppError('The item you are trying to review does not exist.', 404);
   }
 
+  console.log('[DEBUG] Review Service - Item Found:', item); // DEBUG
+  console.log('[DEBUG] Review Service - Item ID (.id):', item.id); // DEBUG
+  console.log('[DEBUG] Review Service - Item _ID (._id):', item._id); // DEBUG
+
   // 2. Yorumu oluştur.
   let newReview;
   try {
     newReview = await reviewRepository.create({
       user: userId,
-      item: item.id,
+      item: item._id, // Kesinlikle MongoDB ObjectId (_id) kullan
       itemModel,
       rating,
       text,

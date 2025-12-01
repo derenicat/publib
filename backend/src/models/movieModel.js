@@ -38,7 +38,7 @@ const movieSchema = new mongoose.Schema(
     toJSON: {
       virtuals: true,
       transform: function (doc, ret) {
-        ret.detailPageId = ret.id; // id'yi detailPageId olarak yeniden adlandır
+        ret.detailPageId = doc._id.toString(); // doc._id üzerinden al
         delete ret.id;
         delete ret._id;
         delete ret.__v;

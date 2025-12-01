@@ -2,7 +2,48 @@ import AppError from "../utils/appError.js";
 import catchAsync from "../utils/catchAsync.js";
 import { User } from "../models/index.js";
 import { verifyToken } from "../utils/jwtHelper.js";
-import TokenBlacklist from "../models/tokenBlacklistModel.js"; // Import the TokenBlacklist model
+import TokenBlacklist from "../models/tokenBlacklistModel.js";
+
+// OPSİYONEL KİMLİK DOĞRULAMA:
+// Token varsa kullanıcıyı bulup req.user'a atar, yoksa hata vermeden devam eder.
+// Hem giriş yapmış hem de yapmamış kullanıcıların erişebileceği ama farklı içerik
+// göreceği rotalar için kullanılır.
+const isLoggedIn = async (req, res, next) => {
+  let token;
+
+  if (req.cookies.token) {
+    token = req.cookies.token;
+  } else if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith("Bearer")
+  ) {
+    token = req.headers.authorization.split(" ")[1];
+  }
+
+  // Token yoksa devam et (req.user undefined kalır)
+  if (!token) return next();
+
+  try {
+    const decoded = await verifyToken(token);
+
+    // Token karaliste kontrolü
+    const isBlacklisted = await TokenBlacklist.findOne({ token });
+    if (isBlacklisted) return next();
+
+    const currentUser = await User.findById(decoded.id);
+    if (!currentUser) return next();
+
+    // Şifre değişimi kontrolü
+    if (currentUser.changedPasswordAfter(decoded.iat)) return next();
+
+    // Başarılı: Kullanıcıyı request'e ekle
+    req.user = currentUser;
+    return next();
+  } catch (err) {
+    // Herhangi bir hatada (token geçersiz vs.) sessizce devam et
+    return next();
+  }
+};
 
 const protect = catchAsync(async (req, res, next) => {
   let token;
@@ -24,14 +65,7 @@ const protect = catchAsync(async (req, res, next) => {
 
   const decoded = await verifyToken(token);
 
-  // TOKEN KARALİSTESİ KONTROLÜ (TOKEN BLACKLISTING):
-  // Kullanıcı çıkış yaptığında, ilgili JWT token'ı bir karalisteye alınır.
-  // Bu kontrol, ele geçirilmiş veya süresi dolmamış dahi olsa,
-  // karalisteye alınmış bir token'ın yetkilendirme için kullanılmasını engeller.
-  // Bu sayede eski veya geçersiz token'larla yetkisiz erişim önlenir.
-  console.log(`[DEV LOG] Checking token against blacklist: ${token}`);
   const isBlacklisted = await TokenBlacklist.findOne({ token });
-  console.log(`[DEV LOG] Is token blacklisted?`, isBlacklisted);
   if (isBlacklisted) {
     return next(
       new AppError("This token has been invalidated. Please log in again.", 401)
@@ -45,17 +79,12 @@ const protect = catchAsync(async (req, res, next) => {
     );
   }
 
-  // ŞİFRE DEĞİŞİMİ SONRASI TOKEN GEÇERSİZLİĞİ:
-  // Kullanıcı token verildikten sonra şifresini değiştirmişse, mevcut token'ın
-  // otomatik olarak geçersiz kılınmasını sağlar. Bu, çalınan bir token'ın
-  // şifre değişikliği sonrasında bile kullanılmasını önleyerek güvenliği artırır.
   if (currentUser.changedPasswordAfter(decoded.iat)) {
     return next(
       new AppError("User recently changed password! Please log in again.", 401)
     );
   }
 
-  // Development environment logging
   if (process.env.NODE_ENV === "development") {
     console.log(
       `[DEV LOG] JWT Verified. User ID: ${currentUser._id}, Email: ${currentUser.email}`
@@ -63,17 +92,12 @@ const protect = catchAsync(async (req, res, next) => {
   }
 
   req.user = currentUser;
-  req.user.exp = decoded.exp; // Attach token expiration to req.user for logout service
+  req.user.exp = decoded.exp;
   next();
 });
 
-// ROL BAZLI ERİŞİM KONTROLÜ (ROLE-BASED ACCESS CONTROL - RBAC):
-// Belirli bir rotaya yalnızca tanımlanmış rollere (örn: 'admin', 'moderator')
-// sahip kullanıcıların erişmesini sağlar. `protect` middleware'i sonrasında çalışır.
 const restrictTo = (...roles) => {
   return (req, res, next) => {
-    // roles is an array, e.g., ['admin', 'lead-guide']
-    // req.user is available from the 'protect' middleware
     if (!roles.includes(req.user.role)) {
       return next(
         new AppError("You do not have permission to perform this action.", 403)
@@ -83,10 +107,6 @@ const restrictTo = (...roles) => {
   };
 };
 
-// KAYNAK SAHİPLİĞİ KONTROLÜ:
-// Bir kaynağın (belgenin) yalnızca kendi sahibi veya 'admin' rolüne sahip
-// kullanıcılar tarafından değiştirilmesini/silinmesini sağlar.
-// Örneğin, bir kullanıcının başkasının kitap listesini silmesini engeller.
 const checkOwnership = Model =>
   catchAsync(async (req, res, next) => {
     const { id: resourceId } = req.params;
@@ -98,8 +118,6 @@ const checkOwnership = Model =>
       return next(new AppError("No document found with that ID.", 404));
     }
 
-    // Check if the resource has a 'user' field and if that user is the one making the request.
-    // Also allow admins to bypass this check.
     if (
       doc.user &&
       doc.user.toString() !== requestingUser.id &&
@@ -113,4 +131,4 @@ const checkOwnership = Model =>
     next();
   });
 
-export { protect, restrictTo, checkOwnership };
+export { protect, restrictTo, checkOwnership, isLoggedIn };
