@@ -211,13 +211,14 @@ const DiscoveryPage = () => {
 
       {/* Pagination */}
       <div className="flex justify-center items-center gap-4 mt-10">
-        <button
-            onClick={() => setPage(p => Math.max(1, p - 1))}
-            disabled={page === 1}
-            className="px-4 py-2 bg-surface border border-border rounded-lg text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-surface-accent transition-colors"
-        >
-            Previous
-        </button>
+        {page > 1 && ( // Sadece page 1'den büyükse göster
+          <button
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              className="px-4 py-2 bg-surface border border-border rounded-lg text-white hover:bg-surface-accent transition-colors"
+          >
+              Previous
+          </button>
+        )}
         <span className="text-secondary">Page {page}</span>
         <button
             onClick={() => setPage(p => p + 1)}

@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom'; // Link import edildi
+import { Link } from 'react-router-dom';
+import { PlusIcon } from '@heroicons/react/24/solid';
+import { GlobeAltIcon, LockClosedIcon } from '@heroicons/react/24/outline';
 import userListService from '../../services/userListService';
 import ListModal from './ListModal';
 
@@ -62,9 +64,7 @@ const UserListsTab = ({ userId, isOwnProfile }) => {
             onClick={() => setIsListModalOpen(true)}
             className="flex items-center gap-2 bg-surface-accent hover:bg-border text-white px-4 py-2 rounded-full text-sm font-medium transition-colors border border-border"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-brand-500" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
-            </svg>
+            <PlusIcon className="h-5 w-5 text-brand-500" />
             Create New List
           </button>
         </div>
@@ -107,9 +107,9 @@ const UserListsTab = ({ userId, isOwnProfile }) => {
                     {isOwnProfile && (
                         <span className="text-xs text-secondary flex items-center gap-1">
                             {list.isPublic ? (
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z" /><path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" /></svg>
+                                <GlobeAltIcon className="h-3 w-3" />
                             ) : (
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" /></svg>
+                                <LockClosedIcon className="h-3 w-3" />
                             )}
                             {list.isPublic ? 'Public' : 'Private'}
                         </span>

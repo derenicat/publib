@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import toast from 'react-hot-toast'; // Import toast
 
 const RegisterPage = () => {
   const [formData, setFormData] = useState({
@@ -9,7 +10,7 @@ const RegisterPage = () => {
     password: '',
     passwordConfirm: ''
   });
-  const [localError, setLocalError] = useState('');
+  // const [localError, setLocalError] = useState(''); // Artık toast kullanılacak
   
   const { register, loading } = useAuth();
   const navigate = useNavigate();
@@ -23,18 +24,20 @@ const RegisterPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLocalError('');
+    // setLocalError(''); // Artık toast kullanılacak
 
     if (formData.password !== formData.passwordConfirm) {
-      return setLocalError('Passwords do not match');
+      toast.error('Passwords do not match'); // Toast ile hata göster
+      return;
     }
     
     const result = await register(formData);
     
     if (result.success) {
+      toast.success('Registration successful!'); // Başarılı kayıtta toast
       navigate('/profile');
     } else {
-      setLocalError(result.error);
+      toast.error(result.error); // Hata durumunda toast
     }
   };
 
@@ -46,11 +49,11 @@ const RegisterPage = () => {
           <p className="text-secondary mt-2">Join the Publib community</p>
         </div>
 
-        {localError && (
+        {/* {localError && ( // Error bloğu artık kullanılmayacak
           <div className="bg-danger/10 border border-danger text-danger text-sm rounded-lg p-3 mb-4">
             {localError}
           </div>
-        )}
+        )} */}
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>

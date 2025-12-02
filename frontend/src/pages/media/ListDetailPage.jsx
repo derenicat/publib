@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
+import { PencilIcon, TrashIcon, GlobeAltIcon, LockClosedIcon, PlusIcon } from '@heroicons/react/24/outline';
 import userListService from '../../services/userListService';
 import { useAuth } from '../../context/AuthContext';
 import ListModal from '../../components/profile/ListModal';
+import toast from 'react-hot-toast'; // Import toast
 
 const ListDetailPage = () => {
   const { id } = useParams(); // URL'den liste ID'sini al
@@ -40,19 +42,60 @@ const ListDetailPage = () => {
   }, [id, refreshTrigger]);
 
   const handleDelete = async () => {
-    if (!window.confirm('Are you sure you want to delete this list? This action cannot be undone.')) {
-      return;
-    }
-
-    try {
-      await userListService.deleteList(id);
-      navigate('/profile'); // Profil sayfasına dön
-    } catch (err) {
-      alert(err.response?.data?.message || 'Failed to delete list.');
-    }
+    // Confirm with a toast promise or a custom modal for better UX
+    toast.custom((t) => (
+      <div
+        className={`${
+          t.visible ? 'animate-enter' : 'animate-leave'
+        } max-w-md w-full bg-surface shadow-lg rounded-lg pointer-events-auto flex ring-1 ring-black ring-opacity-5 border border-border`}
+      >
+        <div className="flex-1 w-0 p-4">
+          <div className="flex items-start">
+            <div className="flex-shrink-0 pt-0.5">
+              <TrashIcon className="h-6 w-6 text-red-500" aria-hidden="true" />
+            </div>
+            <div className="ml-3 flex-1">
+              <p className="text-sm font-medium text-white">
+                Delete List
+              </p>
+              <p className="mt-1 text-sm text-gray-400">
+                Are you sure you want to delete this list? This action cannot be undone.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div className="flex border-l border-border">
+          <button
+            onClick={() => {
+              toast.dismiss(t.id);
+              toast.promise(userListService.deleteList(id), {
+                loading: 'Deleting list...',
+                success: <b>List deleted!</b>,
+                error: (err) => {
+                  navigate('/profile'); // Hata durumunda da profile yönlendir
+                  return <b>{err.response?.data?.message || 'Failed to delete list.'}</b>;
+                },
+              }).then(() => {
+                navigate('/profile'); // Başarılıysa profile yönlendir
+              });
+            }}
+            className="w-full border border-transparent rounded-none rounded-r-lg p-4 flex items-center justify-center text-sm font-medium text-red-400 hover:text-white hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500"
+          >
+            Delete
+          </button>
+          <button
+            onClick={() => toast.dismiss(t.id)}
+            className="w-full border border-transparent rounded-none rounded-r-lg p-4 flex items-center justify-center text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    ), { duration: Infinity }); // Süresiz göster
   };
 
   const handleListUpdated = () => {
+    toast.success('List updated successfully!');
     setRefreshTrigger(prev => prev + 1); // Listeyi yeniden çek
   };
 
@@ -98,9 +141,9 @@ const ListDetailPage = () => {
                 </span>
                 <span className="text-secondary flex items-center gap-1">
                     {list.isPublic ? (
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z" /><path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" /></svg>
+                        <GlobeAltIcon className="h-4 w-4" />
                     ) : (
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" /></svg>
+                        <LockClosedIcon className="h-4 w-4" />
                     )}
                     {list.isPublic ? 'Public' : 'Private'}
                 </span>
@@ -117,14 +160,16 @@ const ListDetailPage = () => {
             <div className="flex gap-2">
               <button 
                 onClick={() => setIsEditModalOpen(true)}
-                className="px-4 py-2 bg-surface-accent hover:bg-border text-white text-sm font-medium rounded-full transition-colors border border-border"
+                className="flex items-center gap-2 px-4 py-2 bg-surface-accent hover:bg-border text-white text-sm font-medium rounded-full transition-colors border border-border"
               >
+                <PencilIcon className="h-4 w-4" />
                 Edit List
               </button>
               <button 
                 onClick={handleDelete}
-                className="px-4 py-2 bg-danger/20 hover:bg-danger/40 text-danger text-sm font-medium rounded-full transition-colors border border-danger/50"
+                className="flex items-center gap-2 px-4 py-2 bg-danger/20 hover:bg-danger/40 text-danger text-sm font-medium rounded-full transition-colors border border-danger/50"
               >
+                <TrashIcon className="h-4 w-4" />
                 Delete List
               </button>
             </div>
@@ -139,8 +184,9 @@ const ListDetailPage = () => {
             {isOwner && (
                 <button 
                   onClick={() => navigate(`/search?type=${list.type.toLowerCase()}`)}
-                  className="mt-4 px-6 py-2 bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium rounded-full transition-colors shadow-lg shadow-brand-900/20"
+                  className="mt-4 px-6 py-2 bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium rounded-full transition-colors shadow-lg shadow-brand-900/20 flex items-center gap-2 mx-auto"
                 >
+                    <PlusIcon className="h-5 w-5" />
                     Add Items
                 </button>
             )}

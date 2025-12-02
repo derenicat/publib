@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import Modal from '../common/Modal';
 import reviewService from '../../services/reviewService';
+import toast from 'react-hot-toast'; // Import toast
 
 const ReviewFormModal = ({ isOpen, onClose, onSuccess, initialData = null, item, itemModel }) => {
   const isEditMode = !!initialData;
@@ -47,13 +48,15 @@ const ReviewFormModal = ({ isOpen, onClose, onSuccess, initialData = null, item,
     try {
       if (isEditMode) {
         await reviewService.updateReview(initialData.id || initialData._id, { rating, text: reviewText });
+        toast.success('Review updated successfully!');
       } else {
         await reviewService.createReview(reviewPayload);
+        toast.success('Review submitted successfully!');
       }
-      onSuccess();
+      onSuccess(isEditMode ? 'Review updated successfully!' : 'Review submitted successfully!');
       onClose();
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to save review.');
+      toast.error(err.response?.data?.message || 'Failed to save review.');
     } finally {
       setLoading(false);
     }

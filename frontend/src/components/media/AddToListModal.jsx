@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import Modal from '../common/Modal';
 import userListService from '../../services/userListService';
 import libraryEntryService from '../../services/libraryEntryService';
+import toast from 'react-hot-toast'; // Import toast
 
 const BOOK_STATUSES = [
   { value: 'WANT_TO_READ', label: 'Want to Read' },
@@ -55,7 +56,7 @@ const AddToListModal = ({ isOpen, onClose, item, type, onSuccess }) => {
         }
       } catch (err) {
         console.error("Listeler çekilemedi:", err);
-        setError("Failed to load your lists.");
+        toast.error("Failed to load your lists."); // setError yerine toast.error
       } finally {
         setLoadingLists(false);
       }
@@ -142,10 +143,10 @@ const AddToListModal = ({ isOpen, onClose, item, type, onSuccess }) => {
         status
       });
 
-      onSuccess(); 
+      toast.success('Item added to your list!'); // onSuccess() yerine toast
       onClose();
     } catch (err) {
-        setError(err.response?.data?.message || 'Failed to add item to list.');
+        toast.error(err.response?.data?.message || 'Failed to add item to list.'); // setError yerine toast.error
     } finally {
       setSubmitting(false);
     }

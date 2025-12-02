@@ -76,10 +76,11 @@ export const addToList = async ({
   });
 
   // 5. Yeni kütüphane girişi için bir aktivite akışı girişi oluştur
+  console.log('[DEBUG] Creating Activity for Library Entry:', newEntry._id);
   await activityRepository.create({
     user: userId,
     type: 'LIBRARY_ENTRY_CREATED',
-    subject: newEntry.id,
+    subject: newEntry._id, // .id yerine ._id
     subjectModel: 'LibraryEntry',
   });
 

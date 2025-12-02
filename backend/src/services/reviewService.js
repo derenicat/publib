@@ -61,10 +61,11 @@ export const createReview = async ({
   }
 
   // 4. Yeni yorum için bir aktivite akışı girişi oluştur
+  console.log('[DEBUG] Creating Activity for Review:', newReview._id);
   await activityRepository.create({
     user: userId,
     type: 'REVIEW_CREATED',
-    subject: newReview.id,
+    subject: newReview._id, // .id yerine ._id
     subjectModel: 'Review',
   });
 

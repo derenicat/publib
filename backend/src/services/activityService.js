@@ -9,10 +9,10 @@ export const getPersonalFeed = async (userId, queryParams) => {
       path: 'subject', // Eylemin kendisini (Review, LibraryEntry, Follow) populate et
       populate: [
         // subject'in içindeki item'ı populate et (Review veya LibraryEntry için)
-        { path: 'item', select: 'title posterPath detailPageId' },
+        { path: 'item', select: 'title posterPath detailPageId', strictPopulate: false },
         // subject'in içindeki takipçi/takip edilen user'ı populate et (Follow için)
-        { path: 'follower', select: 'username avatarUrl detailPageId' },
-        { path: 'following', select: 'username avatarUrl detailPageId' },
+        { path: 'follower', select: 'username avatarUrl detailPageId', strictPopulate: false },
+        { path: 'following', select: 'username avatarUrl detailPageId', strictPopulate: false },
       ],
     },
   ];
@@ -33,9 +33,9 @@ export const getSocialFeed = async (userId, queryParams) => {
     {
       path: 'subject',
       populate: [
-        { path: 'item', select: 'title posterPath detailPageId' },
-        { path: 'follower', select: 'username avatarUrl detailPageId' },
-        { path: 'following', select: 'username avatarUrl detailPageId' },
+        { path: 'item', select: 'title posterPath detailPageId', strictPopulate: false },
+        { path: 'follower', select: 'username avatarUrl detailPageId', strictPopulate: false },
+        { path: 'following', select: 'username avatarUrl detailPageId', strictPopulate: false },
       ],
     },
   ];
@@ -50,9 +50,9 @@ export const getGlobalFeed = async (queryParams) => {
     {
       path: 'subject',
       populate: [
-        { path: 'item', select: 'title posterPath detailPageId' },
-        { path: 'follower', select: 'username avatarUrl detailPageId' },
-        { path: 'following', select: 'username avatarUrl detailPageId' },
+        { path: 'item', select: 'title posterPath detailPageId', strictPopulate: false },
+        { path: 'follower', select: 'username avatarUrl detailPageId', strictPopulate: false },
+        { path: 'following', select: 'username avatarUrl detailPageId', strictPopulate: false },
       ],
     },
   ];

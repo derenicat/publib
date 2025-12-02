@@ -1,13 +1,20 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import MainLayout from './components/layout/MainLayout';
 import LoginPage from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage';
-import ProfilePage from './pages/profile/ProfilePage'; // Gerçek ProfilePage import edildi
-import ListDetailPage from './pages/media/ListDetailPage'; // Yeni eklenecek ListDetailPage import edildi
+import ProfilePage from './pages/profile/ProfilePage';
+import ListDetailPage from './pages/media/ListDetailPage';
 import SearchPage from './pages/media/SearchPage';
-import MediaDetailPage from './pages/media/MediaDetailPage'; // Yeni eklenecek
-import DiscoveryPage from './pages/media/DiscoveryPage'; // Yeni eklenecek
+import MediaDetailPage from './pages/media/MediaDetailPage';
+import DiscoveryPage from './pages/media/DiscoveryPage';
+import FeedPage from './pages/feed/FeedPage'; // Yeni eklendi
+import { Toaster } from 'react-hot-toast';
 
 // Placeholder Components
 const HomePage = () => (
@@ -27,13 +34,14 @@ const NotFoundPage = () => (
 // Basit Protected Route Bileşeni
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
-  
-  if (loading) return <div className="text-white text-center mt-10">Loading...</div>;
-  
+
+  if (loading)
+    return <div className="text-white text-center mt-10">Loading...</div>;
+
   if (!user) {
     return <Navigate to="/login" replace />;
   }
-  
+
   return children;
 };
 
@@ -44,35 +52,37 @@ function App() {
         <MainLayout>
           <Routes>
             <Route path="/" element={<HomePage />} />
-            <Route path="/search" element={<SearchPage />} /> {/* Public Route */}
-            <Route path="/discover" element={<DiscoveryPage />} /> {/* Public Route */}
-            <Route path="/media/:type/:id" element={<MediaDetailPage />} /> {/* Public Route */}
+            <Route path="/search" element={<SearchPage />} />
+            <Route path="/discover" element={<DiscoveryPage />} />
+            <Route path="/feed" element={<FeedPage />} /> {/* Yeni FeedPage rotası */}
+            <Route path="/media/:type/:id" element={<MediaDetailPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
-            
+
             {/* Korumalı Rota */}
-            <Route 
-              path="/profile" 
+            <Route
+              path="/profile"
               element={
                 <ProtectedRoute>
                   <ProfilePage />
                 </ProtectedRoute>
-              } 
+              }
             />
-            
+
             {/* Liste Detay Sayfası */}
-            <Route 
-              path="/list/:id" 
+            <Route
+              path="/list/:id"
               element={
-                <ProtectedRoute> 
+                <ProtectedRoute>
                   <ListDetailPage />
                 </ProtectedRoute>
-              } 
+              }
             />
 
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </MainLayout>
+        <Toaster /> {/* Toaster bileşeni buraya eklendi */}
       </Router>
     </AuthProvider>
   );

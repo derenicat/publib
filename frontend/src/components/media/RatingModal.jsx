@@ -3,6 +3,8 @@ import Modal from '../common/Modal';
 import reviewService from '../../services/reviewService';
 import libraryEntryService from '../../services/libraryEntryService';
 import userListService from '../../services/userListService';
+import { StarIcon } from '@heroicons/react/24/solid';
+import toast from 'react-hot-toast'; // Import toast
 
 const BOOK_STATUSES = [
   { value: 'READING', label: 'Reading' },
@@ -72,11 +74,10 @@ const RatingModal = ({ isOpen, onClose, item, type, onSuccess, initialData }) =>
         });
       }
 
-      onSuccess();
+      toast.success('Rating saved successfully!'); // onSuccess() yerine toast
       onClose();
     } catch (err) {
-      // 409 Conflict (Already reviewed) hatası gelirse, güncelleme yapmayı teklif edebiliriz ama şimdilik hata gösterelim
-      setError(err.response?.data?.message || 'Failed to save rating.');
+      toast.error(err.response?.data?.message || 'Failed to save rating.'); // setError yerine toast.error
     } finally {
       setLoading(false);
     }
@@ -103,14 +104,9 @@ const RatingModal = ({ isOpen, onClose, item, type, onSuccess, initialData }) =>
                         onClick={() => setRating(i + 1)}
                         className="focus:outline-none transition-transform hover:scale-110"
                     >
-                        <svg 
-                            xmlns="http://www.w3.org/2000/svg" 
+                        <StarIcon 
                             className={`h-8 w-8 ${i < rating ? 'text-yellow-400' : 'text-gray-600'}`} 
-                            viewBox="0 0 20 20" 
-                            fill="currentColor"
-                        >
-                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.538 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.783.57-1.838-.197-1.538-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.462a1 1 0 00.95-.69l1.07-3.292z" />
-                        </svg>
+                        />
                     </button>
                 ))}
             </div>

@@ -1,25 +1,27 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import toast from 'react-hot-toast'; // Import toast
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [localError, setLocalError] = useState('');
-  
+  // const [localError, setLocalError] = useState(''); // Artık toast kullanılacak
+
   const { login, loading } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLocalError('');
-    
+    // setLocalError(''); // Artık toast kullanılacak
+
     const result = await login(email, password);
-    
+
     if (result.success) {
+      toast.success('Login successful!'); // Başarılı girişte toast
       navigate('/profile'); // Başarılı girişte profile git
     } else {
-      setLocalError(result.error);
+      toast.error(result.error); // Hata durumunda toast
     }
   };
 
@@ -31,15 +33,18 @@ const LoginPage = () => {
           <p className="text-secondary mt-2">Sign in to continue to Publib</p>
         </div>
 
-        {localError && (
+        {/* {localError && ( // Error bloğu artık kullanılmayacak
           <div className="bg-danger/10 border border-danger text-danger text-sm rounded-lg p-3 mb-4">
             {localError}
           </div>
-        )}
+        )} */}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-1">
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-300 mb-1"
+            >
               Email Address
             </label>
             <input
@@ -55,10 +60,16 @@ const LoginPage = () => {
 
           <div>
             <div className="flex items-center justify-between mb-1">
-              <label htmlFor="password" class="block text-sm font-medium text-gray-300">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-300"
+              >
                 Password
               </label>
-              <Link to="/forgot-password" class="text-xs text-accent hover:text-blue-400">
+              <Link
+                to="/forgot-password"
+                className="text-xs text-accent hover:text-blue-400"
+              >
                 Forgot password?
               </Link>
             </div>
@@ -86,7 +97,10 @@ const LoginPage = () => {
 
         <div className="mt-6 text-center text-sm text-secondary">
           Don't have an account?{' '}
-          <Link to="/register" className="text-accent hover:text-blue-400 font-medium">
+          <Link
+            to="/register"
+            className="text-accent hover:text-blue-400 font-medium"
+          >
             Register
           </Link>
         </div>

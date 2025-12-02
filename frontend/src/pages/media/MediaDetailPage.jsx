@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { StarIcon, PlusIcon, PencilSquareIcon } from '@heroicons/react/24/solid';
 import bookService from '../../services/bookService';
 import movieService from '../../services/movieService';
-import reviewService from '../../services/reviewService'; // Review servisi eklendi
+import reviewService from '../../services/reviewService';
 import { useAuth } from '../../context/AuthContext';
 import AddToListModal from '../../components/media/AddToListModal';
 import ReviewSection from '../../components/media/ReviewSection';
@@ -12,16 +13,15 @@ const MediaDetailPage = () => {
   const { type, id } = useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const reviewSectionRef = useRef(null); // Yorum bölümüne scroll için ref
+  const reviewSectionRef = useRef(null);
 
   const [item, setItem] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
-  const [userReview, setUserReview] = useState(null); // Kullanıcının mevcut yorumu
+  const [userReview, setUserReview] = useState(null);
 
-  // Fetch Item Details and User Review
   const fetchDetails = async () => {
     setLoading(true);
     setError(null);
@@ -38,7 +38,6 @@ const MediaDetailPage = () => {
       }
       setItem(data);
 
-      // Eğer kullanıcı giriş yapmışsa, bu item için yorumu var mı kontrol et
       if (user) {
         const itemId = data.detailPageId || data._id || data.id;
         const itemModel = type === 'book' ? 'Book' : 'Movie';
@@ -66,7 +65,7 @@ const MediaDetailPage = () => {
     if (type && id) {
       fetchDetails();
     }
-  }, [type, id, user]); // User değişirse tekrar kontrol et
+  }, [type, id, user]);
 
   const handleAddToList = () => {
     if (!user) {
@@ -86,7 +85,7 @@ const MediaDetailPage = () => {
 
   const handleRatingSuccess = () => {
       setIsRatingModalOpen(false);
-      fetchDetails(); // Sayfadaki puanı ve kullanıcı yorumunu güncelle
+      fetchDetails();
   };
 
   const handleWriteReviewClick = () => {
@@ -120,7 +119,6 @@ const MediaDetailPage = () => {
 
   if (!item) return null;
 
-  // Veri normalizasyonu
   const title = item.title;
   const description = item.description || item.overview;
   const image = type === 'book' ? item.coverImage : `https://image.tmdb.org/t/p/w780${item.posterPath}`;
@@ -167,9 +165,7 @@ const MediaDetailPage = () => {
                 <div className="flex items-center gap-3">
                     {item.averageRating > 0 && (
                         <div className="flex items-center gap-2 bg-surface/80 backdrop-blur-md px-4 py-2 rounded-lg border border-yellow-500/30 shadow-lg shadow-yellow-500/10">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
-                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.538 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.783.57-1.838-.197-1.538-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.462a1 1 0 00.95-.69l1.07-3.292z" />
-                            </svg>
+                            <StarIcon className="h-6 w-6 text-yellow-400" />
                             <div className="flex flex-col items-start leading-none">
                                 <span className="text-xl font-bold text-white">{item.averageRating.toFixed(1)}</span>
                                 <span className="text-[10px] text-secondary">{item.ratingsCount} ratings</span>
@@ -186,9 +182,7 @@ const MediaDetailPage = () => {
                         }`}
                         title={userReview ? "Update your rating" : "Rate this"}
                     >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill={userReview ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.538 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.783.57-1.838-.197-1.538-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.462a1 1 0 00.95-.69l1.07-3.292z" />
-                        </svg>
+                        <StarIcon className="h-8 w-8" fill={userReview ? "currentColor" : "none"} />
                         {userReview && (
                             <span className="font-bold text-lg pr-1">{userReview.rating}</span>
                         )}
@@ -226,15 +220,14 @@ const MediaDetailPage = () => {
                 onClick={handleAddToList}
                 className="bg-brand-600 hover:bg-brand-700 text-white px-8 py-3 rounded-full font-bold transition-colors shadow-lg shadow-brand-900/20 flex items-center gap-2"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
-                </svg>
+                <PlusIcon className="h-5 w-5" />
                 Add to List
               </button>
               <button 
-                onClick={handleWriteReviewClick} // ReviewSection'a scroll
-                className="bg-surface hover:bg-surface-accent text-white border border-border px-6 py-3 rounded-full font-medium transition-colors"
+                onClick={handleWriteReviewClick}
+                className="bg-surface hover:bg-surface-accent text-white border border-border px-6 py-3 rounded-full font-medium transition-colors flex items-center gap-2"
               >
+                <PencilSquareIcon className="h-5 w-5" />
                 Write Review
               </button>
             </div>

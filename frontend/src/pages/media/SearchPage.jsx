@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
+import { PhotoIcon } from '@heroicons/react/24/outline';
 import bookService from '../../services/bookService';
 import movieService from '../../services/movieService';
 
@@ -169,7 +170,7 @@ const SearchPage = () => {
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-secondary bg-surface-accent">
-                          No Image
+                          <PhotoIcon className="h-12 w-12 text-gray-600" />
                         </div>
                       )}
                       
@@ -195,13 +196,14 @@ const SearchPage = () => {
 
             {/* Pagination Controls */}
             <div className="flex justify-center items-center gap-4 mt-10">
-              <button
-                onClick={() => handlePageChange(page - 1)}
-                disabled={page === 1}
-                className="px-4 py-2 bg-surface border border-border rounded-lg text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-surface-accent transition-colors"
-              >
-                Previous
-              </button>
+              {page > 1 && ( // Sadece page 1'den büyükse göster
+                <button
+                  onClick={() => handlePageChange(page - 1)}
+                  className="px-4 py-2 bg-surface border border-border rounded-lg text-white hover:bg-surface-accent transition-colors"
+                >
+                  Previous
+                </button>
+              )}
               <span className="text-secondary">Page {page}</span>
               
               {/* Next butonu sadece sayfa doluysa (20 öğe) gösterilir */}
