@@ -75,6 +75,7 @@ const RatingModal = ({ isOpen, onClose, item, type, onSuccess, initialData }) =>
       }
 
       toast.success('Rating saved successfully!'); // onSuccess() yerine toast
+      onSuccess(rating); // Yeni rating değerini gönder (Optimistic update için)
       onClose();
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to save rating.'); // setError yerine toast.error

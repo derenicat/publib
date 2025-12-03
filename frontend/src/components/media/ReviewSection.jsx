@@ -4,25 +4,23 @@ import ReviewCard from './ReviewCard';
 import ReviewFormModal from './ReviewFormModal';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { PencilSquareIcon, UserCircleIcon, TrashIcon } from '@heroicons/react/24/solid'; // TrashIcon eklendi
-import toast from 'react-hot-toast'; // toast eklendi
+import { PencilSquareIcon, UserCircleIcon, TrashIcon } from '@heroicons/react/24/solid';
+import toast from 'react-hot-toast';
 
-const ReviewSection = ({ item, itemModel }) => {
+const ReviewSection = ({ item, itemModel, onReviewUpdate }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null); // error state'i toast ile gösterilecek, direkt kullanıma gerek kalmayabilir.
+  const [error, setError] = useState(null);
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
-  const [editReviewData, setEditReviewData] = useState(null); // Düzenlenecek yorumun verisi
+  const [editReviewData, setEditReviewData] = useState(null);
 
-  // Backend için item ID (detailPageId öncelikli)
   const itemId = item.detailPageId || item.id || item._id || item.googleBooksId || item.tmdbId;
 
   const fetchReviews = async () => {
     setLoading(true);
-    // setError(null); // Toast kullanacağımız için artık bu gerekli değil
     try {
       const response = await reviewService.getItemReviews(itemId, itemModel);
       if (response.data && response.data.reviews) {
@@ -30,7 +28,7 @@ const ReviewSection = ({ item, itemModel }) => {
       }
     } catch (err) {
       console.error("Yorumlar çekilemedi:", err);
-      toast.error("Failed to load reviews."); // Toast ile hata göster
+      toast.error("Failed to load reviews.");
     } finally {
       setLoading(false);
     }
@@ -43,22 +41,23 @@ const ReviewSection = ({ item, itemModel }) => {
   }, [itemId, itemModel]);
 
   const handleReviewSuccess = (message) => {
-    toast.success(message || 'Review saved successfully!');
-    fetchReviews(); // Yorum ekledikten/düzenledikten sonra yorumları yeniden çek
-    setEditReviewData(null); // Düzenleme modunu kapat
+    // toast.success(message || 'Review saved successfully!'); // Çifte toast'ı önlemek için kaldırıldı (Modal zaten gösteriyor)
+    fetchReviews(); 
+    setEditReviewData(null);
+    if (onReviewUpdate) onReviewUpdate(); // Ana sayfayı güncelle
   };
 
   const handleWriteReviewClick = () => {
     if (!user) {
-      navigate('/login'); // Giriş yapmamışsa logine yönlendir
+      navigate('/login');
       return;
     }
-    setEditReviewData(null); // Yeni yorum için null
+    setEditReviewData(null);
     setIsFormModalOpen(true);
   };
 
   const handleEditReview = (review) => {
-    setEditReviewData(review); // Düzenlenecek yorumu set et
+    setEditReviewData(review);
     setIsFormModalOpen(true);
   };
 
@@ -93,7 +92,8 @@ const ReviewSection = ({ item, itemModel }) => {
                             success: <b>Review deleted!</b>,
                             error: (err) => <b>{err.response?.data?.message || 'Failed to delete review.'}</b>,
                         }).then(() => {
-                            fetchReviews(); // Başarılıysa yorumları yeniden çek
+                            fetchReviews();
+                            if (onReviewUpdate) onReviewUpdate(); // Ana sayfayı güncelle
                         });
                     }}
                     className="w-full border border-transparent rounded-none rounded-r-lg p-4 flex items-center justify-center text-sm font-medium text-red-400 hover:text-white hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500"
@@ -111,7 +111,6 @@ const ReviewSection = ({ item, itemModel }) => {
     ), { duration: Infinity });
   };
 
-  // Kullanıcının kendi yorumunu ve diğer yorumları ayır
   const currentUserId = user?.id || user?._id || user?.detailPageId;
   const myReview = reviews.find(r => {
       const rUserId = r.user.detailPageId || r.user.id || r.user._id;
@@ -126,11 +125,6 @@ const ReviewSection = ({ item, itemModel }) => {
       </div>
     );
   }
-
-  // Error state'ini artık toast ile göstereceğimiz için burada sadece boş dönebiliriz veya çok kritik bir hata varsa gösterebiliriz
-  // if (error) {
-  //   return <div className="text-center py-12 text-danger">{error}</div>;
-  // }
 
   return (
     <div className="mt-12">
@@ -147,7 +141,6 @@ const ReviewSection = ({ item, itemModel }) => {
         )}
       </div>
 
-      {/* My Review Section */}
       {myReview && (
         <div className="mb-8">
             <h3 className="text-lg font-semibold text-brand-400 mb-4 flex items-center gap-2">
@@ -163,7 +156,6 @@ const ReviewSection = ({ item, itemModel }) => {
         </div>
       )}
 
-      {/* Community Reviews */}
       <div>
         {otherReviews.length > 0 && (
             <h3 className="text-lg font-semibold text-white mb-4">Community Reviews ({otherReviews.length})</h3>
@@ -179,7 +171,6 @@ const ReviewSection = ({ item, itemModel }) => {
                 <ReviewCard 
                 key={review.id || review._id} 
                 review={review} 
-                // Başkalarının yorumlarında edit/delete görünmemeli, zaten ReviewCard içinde isOwner kontrolü var ama burası ekstra güvenlik.
                 onEdit={() => {}} 
                 onDelete={() => {}} 
                 />

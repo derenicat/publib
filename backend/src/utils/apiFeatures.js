@@ -63,6 +63,15 @@ class APIFeatures {
 
     this.query = this.query.find(finalQuery);
 
+    // KULLANICI ADI ARAMA (USERNAME SEARCH)
+    // Eğer 'username' parametresi varsa, bu alanda kelime bazlı,
+    // büyük/küçük harf duyarsız regex araması yapar.
+    // Bu sayede kullanıcılar, kullanıcı adının bir kısmını yazarak arama yapabilir.
+    if (this.queryString.username) {
+      const usernameRegex = new RegExp(this.queryString.username, 'i');
+      this.query = this.query.find({ username: { $regex: usernameRegex } });
+    }
+
     return this;
   }
 

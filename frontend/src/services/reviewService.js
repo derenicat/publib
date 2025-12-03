@@ -17,9 +17,9 @@ const reviewService = {
   },
 
   // Bir kullanıcının tüm yorumlarını getir (profildeki 'Reviews' sekmesi için)
-  getUserReviews: async (userId) => {
+  getUserReviews: async (userId, params = {}) => {
     const response = await api.get('/reviews', {
-      params: { user: userId }
+      params: { user: userId, ...params }
     });
     return response.data;
   },

@@ -8,27 +8,26 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true); // İlk yükleme durumu
   const [error, setError] = useState(null);
 
+  // Kullanıcı oturumunu kontrol etme fonksiyonu
+  const checkAuth = async () => {
+    try {
+      const response = await authService.getCurrentUser();
+      if (response.data && response.data.user) {
+        setUser(response.data.user);
+      } else {
+          setUser(null);
+      }
+    } catch (err) {
+      // 401 hatası normaldir, kullanıcı giriş yapmamıştır.
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Uygulama başladığında kullanıcı oturumunu kontrol et
   useEffect(() => {
-    const checkUserLoggedIn = async () => {
-      try {
-        const response = await authService.getCurrentUser();
-        // Backend yanıt yapısına göre: response.data.user veya direkt response.data olabilir.
-        // Genelde { status: 'success', data: { user: ... } } döneriz.
-        if (response.data && response.data.user) {
-          setUser(response.data.user);
-        } else {
-           setUser(null);
-        }
-      } catch (err) {
-        // 401 hatası normaldir, kullanıcı giriş yapmamıştır.
-        setUser(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    checkUserLoggedIn();
+    checkAuth();
   }, []);
 
   // Giriş İşlemi
@@ -80,7 +79,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, error, login, register, logout }}>
+    <AuthContext.Provider value={{ user, loading, error, login, register, logout, checkAuth }}>
       {children}
     </AuthContext.Provider>
   );

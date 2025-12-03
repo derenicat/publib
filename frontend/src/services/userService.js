@@ -42,6 +42,12 @@ const userService = {
   updateProfile: async (userData) => {
     const response = await api.patch('/users/me', userData);
     return response.data;
+  },
+
+  // Kullanıcı adı ile arama yap
+  searchUsers: async (username) => {
+    const response = await api.get(`/users`, { params: { username } });
+    return response.data;
   }
 };
 

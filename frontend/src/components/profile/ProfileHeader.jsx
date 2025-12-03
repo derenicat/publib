@@ -1,20 +1,21 @@
 import { useState, useEffect } from 'react';
 import userService from '../../services/userService';
 import { useAuth } from '../../context/AuthContext';
+import EditProfileModal from './EditProfileModal'; // Import EditProfileModal
+import { PencilIcon } from '@heroicons/react/24/outline'; // Import PencilIcon
 
 const ProfileHeader = ({ user, isOwnProfile }) => {
   const [stats, setStats] = useState({ followersCount: 0, followingCount: 0 });
   const [loadingStats, setLoadingStats] = useState(true);
-  const { user: currentUser } = useAuth(); // Şu anki oturum açmış kullanıcı (takip durumu için gerekebilir)
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false); // Modal state
+  const { user: currentUser } = useAuth();
 
   // Kullanıcı değiştiğinde istatistikleri çek
   useEffect(() => {
     const fetchStats = async () => {
       try {
         // Eğer user objesi hazır değilse bekle
-        if (!user?._id) return; // _id veya id kullanıyor olabiliriz, kontrol edelim. 
-        // Backend genellikle _id döner ama transform edildiyse id olabilir.
-        // Güvenlik için user.id || user._id kullanabiliriz.
+        if (!user?._id && !user?.id) return;
         const userId = user.id || user._id;
         
         const response = await userService.getFollowStats(userId);
@@ -30,6 +31,12 @@ const ProfileHeader = ({ user, isOwnProfile }) => {
 
     fetchStats();
   }, [user]);
+
+  // Profil güncellendiğinde sayfayı yenile (basit çözüm)
+  // Daha gelişmiş çözüm: Parent'tan (ProfilePage) bir refresh fonksiyonu almak.
+  const handleProfileUpdateSuccess = () => {
+      // window.location.reload(); // Flinch'e sebep olduğu için kaldırıldı. checkAuth context'i güncelliyor.
+  };
 
   // Tarih formatlama
   const joinDate = user?.createdAt 
@@ -71,7 +78,11 @@ const ProfileHeader = ({ user, isOwnProfile }) => {
             {/* Action Buttons */}
             <div>
               {isOwnProfile ? (
-                <button className="px-4 py-2 bg-surface-accent hover:bg-border text-white text-sm font-medium rounded-full transition-colors border border-border">
+                <button 
+                  onClick={() => setIsEditModalOpen(true)}
+                  className="flex items-center gap-2 px-4 py-2 bg-surface-accent hover:bg-border text-white text-sm font-medium rounded-full transition-colors border border-border"
+                >
+                  <PencilIcon className="h-4 w-4" />
                   Edit Profile
                 </button>
               ) : (
@@ -104,6 +115,13 @@ const ProfileHeader = ({ user, isOwnProfile }) => {
           </div>
         </div>
       </div>
+
+      {/* Edit Profile Modal */}
+      <EditProfileModal 
+        isOpen={isEditModalOpen} 
+        onClose={() => setIsEditModalOpen(false)} 
+        onSuccess={handleProfileUpdateSuccess}
+      />
     </div>
   );
 };

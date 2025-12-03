@@ -22,8 +22,9 @@ const MediaDetailPage = () => {
   const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
   const [userReview, setUserReview] = useState(null);
 
-  const fetchDetails = async () => {
-    setLoading(true);
+  // Fetch Item Details and User Review
+  const fetchDetails = async (isSilent = false) => {
+    if (!isSilent) setLoading(true);
     setError(null);
     try {
       let data;
@@ -38,6 +39,7 @@ const MediaDetailPage = () => {
       }
       setItem(data);
 
+      // Eğer kullanıcı giriş yapmışsa, bu item için yorumu var mı kontrol et
       if (user) {
         const itemId = data.detailPageId || data._id || data.id;
         const itemModel = type === 'book' ? 'Book' : 'Movie';
@@ -57,7 +59,7 @@ const MediaDetailPage = () => {
       console.error("Detaylar yüklenirken hata:", err);
       setError(err.response?.data?.message || 'Failed to load content details.');
     } finally {
-      setLoading(false);
+      if (!isSilent) setLoading(false);
     }
   };
 
@@ -83,9 +85,18 @@ const MediaDetailPage = () => {
     setIsRatingModalOpen(true);
   };
 
-  const handleRatingSuccess = () => {
+  const handleRatingSuccess = (newRating) => {
       setIsRatingModalOpen(false);
-      fetchDetails();
+      
+      // Optimistic Update
+      if (userReview) {
+          setUserReview({ ...userReview, rating: newRating });
+      } else {
+          // Yeni review ise (geçici ID ve user ile)
+          setUserReview({ rating: newRating, user: { id: user.id || user._id } });
+      }
+
+      fetchDetails(true); // Silent refresh
   };
 
   const handleWriteReviewClick = () => {
@@ -119,6 +130,7 @@ const MediaDetailPage = () => {
 
   if (!item) return null;
 
+  // Veri normalizasyonu
   const title = item.title;
   const description = item.description || item.overview;
   const image = type === 'book' ? item.coverImage : `https://image.tmdb.org/t/p/w780${item.posterPath}`;
@@ -246,7 +258,11 @@ const MediaDetailPage = () => {
       {/* Review Section */}
       {item && (
         <div id="review-section" ref={reviewSectionRef} className="relative z-10 max-w-6xl mx-auto px-4">
-            <ReviewSection item={item} itemModel={type === 'book' ? 'Book' : 'Movie'} />
+            <ReviewSection 
+                item={item} 
+                itemModel={type === 'book' ? 'Book' : 'Movie'} 
+                onReviewUpdate={() => fetchDetails(true)} // Update main page silently
+            />
         </div>
       )}
 

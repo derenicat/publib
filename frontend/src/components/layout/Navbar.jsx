@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { UserCircleIcon } from '@heroicons/react/24/solid';
-import { HomeIcon, MagnifyingGlassIcon, SparklesIcon, RssIcon, ArrowLeftOnRectangleIcon } from '@heroicons/react/24/outline'; // ArrowLeftOnRectangleIcon eklendi
+import { HomeIcon, MagnifyingGlassIcon, SparklesIcon, RssIcon, ArrowLeftOnRectangleIcon, UserGroupIcon } from '@heroicons/react/24/outline'; // ArrowLeftOnRectangleIcon ve UserGroupIcon eklendi
 
 const Navbar = () => {
   const { user, logout } = useAuth();
@@ -63,6 +63,7 @@ const Navbar = () => {
               <NavLink to="/" icon={HomeIcon}>Home</NavLink>
               <NavLink to="/search" icon={MagnifyingGlassIcon}>Search</NavLink>
               <NavLink to="/discover" icon={SparklesIcon}>Discover</NavLink>
+              <NavLink to="/users/search" icon={UserGroupIcon}>Find Users</NavLink>
               
               {user ? (
                 <>

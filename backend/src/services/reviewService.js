@@ -80,16 +80,8 @@ export const getAllReviews = async (queryParams) => {
     { path: 'item', select: 'title posterPath detailPageId' },
   ];
 
-  // Sorgu parametrelerine dayalı temel filtreleme. Daha sonra APIFeatures ile genişletilebilir.
-  let filter = {};
-  if (queryParams.item) {
-    filter.item = queryParams.item;
-  }
-  if (queryParams.user) {
-    filter.user = queryParams.user;
-  }
-
-  return reviewRepository.findAll(filter, populateOptions);
+  // queryParams'i doğrudan findAll'a gönderiyoruz. APIFeatures filtreleme, sıralama ve sayfalama işlemlerini halledecek.
+  return reviewRepository.findAll(queryParams, populateOptions);
 };
 
 export const getReviewById = async (reviewId) => {

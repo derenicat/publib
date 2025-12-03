@@ -22,10 +22,10 @@ export const getPersonalFeed = async (userId, queryParams) => {
 export const getSocialFeed = async (userId, queryParams) => {
   // 1. Mevcut kullanıcının takip ettiği kullanıcıların listesini al.
   const following = await followRepository.findAll({ follower: userId });
-  const followingIds = following.map((f) => f.following.detailPageId); // detailPageId'leri al
+  const followingIds = following.map((f) => f.following); // detailPageId'leri al (populate edilmediği için direkt ID)
 
-  // 2. Kendi aktivitelerini de görmek için mevcut kullanıcının ID'sini listeye ekle.
-  followingIds.push(userId);
+  // 2. Sadece takip edilenlerin aktivitelerini getir (Kendi aktivitelerini hariç tut)
+  // followingIds.push(userId); // Kaldırıldı
 
   // 3. Bu kullanıcıların tüm aktivitelerini getir.
   const populateOptions = [

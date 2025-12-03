@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { HeartIcon, ChatBubbleBottomCenterTextIcon, PencilIcon, TrashIcon, UserCircleIcon, StarIcon, BookOpenIcon, FilmIcon, PlusIcon } from '@heroicons/react/24/outline'; // Outline ikonlar
+import { HeartIcon, ChatBubbleBottomCenterTextIcon, UserCircleIcon, BookOpenIcon, FilmIcon, PlusIcon } from '@heroicons/react/24/outline'; // Outline ikonlar
 import { HeartIcon as HeartIconSolid } from '@heroicons/react/24/solid'; // Dolu kalp ikonu için solid
+import ReviewCard from '../media/ReviewCard'; // ReviewCard import edildi
 
 const ActivityCard = ({ activity, onActivityUpdate }) => {
   const { user: currentUser } = useAuth();
@@ -27,7 +28,7 @@ const ActivityCard = ({ activity, onActivityUpdate }) => {
   };
 
   const isLiked = currentUser && activity.likes.includes(currentUser.id || currentUser._id || currentUser.detailPageId);
-  const isOwner = currentUser && (activity.user.detailPageId || activity.user.id || activity.user._id) === (currentUser.id || currentUser._id || currentUser.detailPageId);
+  // const isOwner = currentUser && (activity.user.detailPageId || activity.user.id || activity.user._id) === (currentUser.id || currentUser._id || currentUser.detailPageId);
 
   const handleToggleLike = async () => {
     // onActivityUpdate prop'u ile parent'a bildirip tüm feed'i yenileyebiliriz.
@@ -56,19 +57,19 @@ const ActivityCard = ({ activity, onActivityUpdate }) => {
   // Activity Subject Render
   const renderSubject = () => {
     const subject = activity.subject; // Review, LibraryEntry, Follow
-    const subjectUser = subject.user; // If it's a review or library entry
+    // const subjectUser = subject.user; // If it's a review or library entry
 
     switch (activity.type) {
       case 'REVIEW_CREATED':
         return (
-          <div className="flex items-center gap-2">
-            {subject.rating && <StarIcon className="h-5 w-5 text-yellow-400" />}
-            <span className="font-semibold">{subject.rating}</span>
-            <span className="text-secondary text-sm">rated</span>
-            <Link to={`/media/${subject.itemModel.toLowerCase()}/${subject.item.detailPageId}`} className="text-brand-400 hover:underline font-semibold">
-              {subject.item.title || subject.item.name}
-            </Link>
-            {subject.text && <span className="text-secondary text-sm">"{subject.text.substring(0, 50)}..."</span>}
+          <div className="mt-2">
+            <ReviewCard 
+              review={subject} 
+              showMediaInfo={true} 
+              hideUserHeader={true} 
+              onEdit={() => {}} 
+              onDelete={() => {}}
+            />
           </div>
         );
       case 'LIBRARY_ENTRY_CREATED':
@@ -123,37 +124,13 @@ const ActivityCard = ({ activity, onActivityUpdate }) => {
       </div>
 
       {/* Activity Content */}
-      <div classNamemb-4>
+      <div className="mb-4">
         {renderSubject()}
       </div>
 
-      {/* Media Item Thumbnail (if applicable) */}
-      {activity.subject.item && (
-        <div className="flex items-center gap-4 mt-4 bg-surface-accent p-3 rounded-lg border border-border">
-          <Link to={`/media/${activity.subject.itemModel.toLowerCase()}/${activity.subject.item.detailPageId}`} className="flex-shrink-0">
-            {activity.subject.item.posterPath || activity.subject.item.coverImage ? (
-              <img
-                src={activity.subject.item.posterPath ? `https://image.tmdb.org/t/p/w92${activity.subject.item.posterPath}` : activity.subject.item.coverImage}
-                alt={activity.subject.item.title}
-                className="w-12 h-18 object-cover rounded-md"
-              />
-            ) : (
-              <div className="w-12 h-18 bg-gray-700 rounded-md flex items-center justify-center text-xs text-secondary">
-                No Img
-              </div>
-            )}
-          </Link>
-          <div>
-            <Link to={`/media/${activity.subject.itemModel.toLowerCase()}/${activity.subject.item.detailPageId}`} className="text-white font-semibold hover:text-brand-400 transition-colors">
-              {activity.subject.item.title}
-            </Link>
-            <p className="text-secondary text-sm">
-              {activity.subject.item.overview?.substring(0, 80) || activity.subject.item.description?.substring(0, 80)}...
-            </p>
-          </div>
-        </div>
-      )}
-
+      {/* Media Item Thumbnail (if applicable, but ReviewCard handles it now for reviews) */}
+      {/* Only show standalone media thumbnail for non-review activities if needed, but for now LibraryEntry text is enough */}
+      
       {/* Likes and Comments */}
       <div className="flex items-center gap-4 mt-6 pt-4 border-t border-border text-secondary">
         <button onClick={handleToggleLike} className="flex items-center gap-1 hover:text-white transition-colors">
