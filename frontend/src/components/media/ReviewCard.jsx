@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { StarIcon } from '@heroicons/react/24/solid';
 import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { getInitials, formatDate } from '../../utils/helpers';
 
 const RatingBadge = ({ rating }) => {
   return (
@@ -16,20 +17,12 @@ const ReviewCard = ({ review, onEdit, onDelete, showMediaInfo = false, hideUserH
   const { user } = useAuth();
   
   // Kullanıcı ID'sini güvenli bir şekilde al
-  const currentUserId = user?.id || user?._id || user?.detailPageId;
-  const reviewUserId = review.user.detailPageId || review.user.id || review.user._id;
+  const currentUserId = user?.id || user?._id;
+  const reviewUserId = review.user.id || review.user._id;
 
   const isOwner = currentUserId && reviewUserId && currentUserId.toString() === reviewUserId.toString();
 
-  const getInitials = (name) => {
-    return name ? name.substring(0, 2).toUpperCase() : 'U';
-  };
-
-  const formattedDate = new Date(review.createdAt).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  });
+  const formattedDate = formatDate(review.createdAt);
 
   // Media item bilgileri (eğer varsa)
   const item = review.item;
@@ -45,12 +38,12 @@ const ReviewCard = ({ review, onEdit, onDelete, showMediaInfo = false, hideUserH
             {review.user.avatarUrl ? (
               <img src={review.user.avatarUrl} alt={review.user.username} className="w-10 h-10 rounded-full object-cover" />
             ) : (
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white text-base font-bold">
+              <div className="w-10 h-10 rounded-full bg-linear-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white text-base font-bold">
                 {getInitials(review.user.username)}
               </div>
             )}
             <div>
-              <Link to={`/profile/${review.user.detailPageId || review.user.id}`} className="text-white font-semibold hover:text-brand-400 transition-colors">
+              <Link to={`/profile/${review.user.id}`} className="text-white font-semibold hover:text-brand-400 transition-colors">
                 @{review.user.username}
               </Link>
               <p className="text-secondary text-xs">{formattedDate}</p>
@@ -85,7 +78,7 @@ const ReviewCard = ({ review, onEdit, onDelete, showMediaInfo = false, hideUserH
       {/* Media Info (Context) */}
       {showMediaInfo && item && (
         <div className="flex items-center gap-4 mt-4 bg-surface p-2 rounded-lg border border-transparent transition-colors hover:bg-surface-accent">
-          <Link to={`/media/${itemModel}/${item.detailPageId}`} className="flex-shrink-0">
+          <Link to={`/media/${itemModel}/${item.detailPageId}`} className="shrink-0">
             {itemImage ? (
               <img
                 src={itemImage}

@@ -86,7 +86,9 @@ export const getAllUsers = catchAsync(async (req, res, next) => {
 
 export const getUserById = catchAsync(async (req, res, next) => {
   const { id } = req.params;
-  const user = await userService.getUserById(id);
+  // İsteği yapan kullanıcının ID'sini de gönder (Takip durumu kontrolü için)
+  const requesterId = req.user?.id;
+  const user = await userService.getUserById(id, requesterId);
 
   res.status(200).json({
     status: 'success',

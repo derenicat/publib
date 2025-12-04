@@ -6,7 +6,7 @@ import movieService from '../../services/movieService';
 
 const SearchPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  
+
   // URL'den parametreleri al (varsayılan değerler ile)
   const initialQuery = searchParams.get('q') || '';
   const initialType = searchParams.get('type') || 'book';
@@ -42,8 +42,8 @@ const SearchPage = () => {
           }
         }
       } catch (err) {
-        console.error("Search error:", err);
-        setError("Search failed. Please try again.");
+        console.error('Search error:', err);
+        setError('Search failed. Please try again.');
       } finally {
         setLoading(false);
       }
@@ -55,12 +55,12 @@ const SearchPage = () => {
     setPage(initialPage);
 
     fetchResults();
-  }, [searchParams]); // Sadece searchParams değiştiğinde çalış
+  }, [initialQuery, initialType, initialPage]); // Primitive değerlere bağla
 
   const handleSearch = (e) => {
     e.preventDefault();
     if (!query.trim()) return;
-    
+
     // URL'i güncelle, bu useEffect'i tetikleyecek
     setSearchParams({ q: query, type: activeTab, page: 1 });
   };
@@ -69,10 +69,10 @@ const SearchPage = () => {
     setActiveTab(type);
     // Eğer sorgu varsa, tab değişince hemen yeni tipte arama yap
     if (query.trim()) {
-        setSearchParams({ q: query, type: type, page: 1 });
+      setSearchParams({ q: query, type: type, page: 1 });
     } else {
-        // Sorgu yoksa sadece URL'deki type'ı güncelle (state senkronizasyonu için)
-        setSearchParams({ type: type });
+      // Sorgu yoksa sadece URL'deki type'ı güncelle (state senkronizasyonu için)
+      setSearchParams({ type: type });
     }
   };
 
@@ -119,7 +119,7 @@ const SearchPage = () => {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={`Search for ${activeTab}s...`}
-            className="flex-grow bg-background border border-border rounded-xl px-4 py-3 text-white focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-colors"
+            className="grow bg-background border border-border rounded-xl px-4 py-3 text-white focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-colors"
           />
           <button
             type="submit"
@@ -148,24 +148,36 @@ const SearchPage = () => {
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
               {results.map((item) => {
                 // Data normalization (Book vs Movie)
-                const id = item.id || item._id || item.googleBooksId || item.tmdbId;
+                const id =
+                  item.id || item._id || item.googleBooksId || item.tmdbId;
                 const title = item.title;
                 // Backend 'thumbnail' dönüyor, frontend 'coverImage' bekliyordu. Düzeltildi.
-                const image = activeTab === 'book' ? (item.thumbnail || item.coverImage) : `https://image.tmdb.org/t/p/w500${item.posterPath}`;
-                const date = activeTab === 'book' ? item.publishedDate : item.releaseDate;
-                const subtitle = activeTab === 'book' ? (item.authors ? item.authors[0] : 'Unknown Author') : (date ? date.split('-')[0] : '');
+                const image =
+                  activeTab === 'book'
+                    ? item.thumbnail || item.coverImage
+                    : `https://image.tmdb.org/t/p/w500${item.posterPath}`;
+                const date =
+                  activeTab === 'book' ? item.publishedDate : item.releaseDate;
+                const subtitle =
+                  activeTab === 'book'
+                    ? item.authors
+                      ? item.authors[0]
+                      : 'Unknown Author'
+                    : date
+                      ? date.split('-')[0]
+                      : '';
 
                 return (
-                  <Link 
+                  <Link
                     to={`/media/${activeTab}/${id}`} // Detay sayfasına git
-                    key={id} 
+                    key={id}
                     className="group block bg-surface rounded-xl border border-border overflow-hidden hover:border-brand-500/50 transition-all hover:shadow-xl hover:shadow-brand-900/20"
                   >
-                    <div className="aspect-[2/3] bg-gray-800 relative overflow-hidden">
+                    <div className="aspect-2/3 bg-gray-800 relative overflow-hidden">
                       {image ? (
-                        <img 
-                          src={image} 
-                          alt={title} 
+                        <img
+                          src={image}
+                          alt={title}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         />
                       ) : (
@@ -173,7 +185,7 @@ const SearchPage = () => {
                           <PhotoIcon className="h-12 w-12 text-gray-600" />
                         </div>
                       )}
-                      
+
                       {/* Enriched Badge (Varsa) */}
                       {item.isEnriched && (
                         <div className="absolute top-2 right-2 bg-brand-500 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-md">
@@ -205,11 +217,11 @@ const SearchPage = () => {
                 </button>
               )}
               <span className="text-secondary">Page {page}</span>
-              
+
               {/* Next butonu sadece sayfa doluysa (20 öğe) gösterilir */}
               <button
                 onClick={() => handlePageChange(page + 1)}
-                disabled={results.length < 20} 
+                disabled={results.length < 20}
                 className={`px-4 py-2 bg-surface border border-border rounded-lg text-white hover:bg-surface-accent transition-colors ${results.length < 20 ? 'hidden' : ''}`}
               >
                 Next
@@ -218,10 +230,12 @@ const SearchPage = () => {
           </>
         )
       )}
-      
+
       {!loading && !error && results.length === 0 && initialQuery && (
         <div className="text-center py-20 bg-surface rounded-2xl border border-border border-dashed">
-          <p className="text-secondary text-lg">No results found for "{initialQuery}".</p>
+          <p className="text-secondary text-lg">
+            No results found for "{initialQuery}".
+          </p>
         </div>
       )}
     </div>

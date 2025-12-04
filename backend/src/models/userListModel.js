@@ -23,7 +23,18 @@ const userListSchema = new mongoose.Schema({
     enum: ['Book', 'Movie'],
   },
 
-}, { timestamps: true });
+}, {
+  timestamps: true,
+  toJSON: {
+    virtuals: true,
+    transform: function (doc, ret) {
+      ret.id = ret._id;
+      delete ret._id;
+      delete ret.__v;
+    },
+  },
+  toObject: { virtuals: true },
+});
 
 // Bir kullanıcının aynı isimde iki listesi olamaz
 userListSchema.index({ user: 1, name: 1 }, { unique: true });
@@ -34,18 +45,6 @@ userListSchema.virtual('entries', {
   foreignField: 'list',
   localField: '_id',
 });
-
-// JSON'a çevrilirken sanal alanların da dahil edilmesini sağlar.
-userListSchema.set('toJSON', {
-  virtuals: true,
-  transform: function (doc, ret) {
-    ret.detailPageId = ret.id; // Rename `id` to `detailPageId` for consistency
-    delete ret.id;
-    delete ret._id;
-    delete ret.__v;
-  },
-});
-userListSchema.set('toObject', { virtuals: true });
 
 const UserList = mongoose.model('UserList', userListSchema);
 

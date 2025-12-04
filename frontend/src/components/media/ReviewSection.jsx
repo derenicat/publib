@@ -70,7 +70,7 @@ const ReviewSection = ({ item, itemModel, onReviewUpdate }) => {
         >
             <div className="flex-1 w-0 p-4">
                 <div className="flex items-start">
-                    <div className="flex-shrink-0 pt-0.5">
+                    <div className="shrink-0 pt-0.5">
                         <TrashIcon className="h-6 w-6 text-red-500" aria-hidden="true" />
                     </div>
                     <div className="ml-3 flex-1">

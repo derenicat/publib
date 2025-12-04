@@ -3,17 +3,22 @@ import { UserCircleIcon } from '@heroicons/react/24/solid'; // Solid ikon
 
 const UserCard = ({ user }) => {
   const getInitials = (name) => name ? name.substring(0, 2).toUpperCase() : 'U';
+  const userId = user.id || user._id;
 
   return (
     <div className="bg-surface p-4 rounded-xl border border-border flex items-center justify-between shadow-sm">
-      <Link to={`/profile/${user.id}`} className="flex items-center gap-3">
-        {user.avatarUrl ? (
-          <img src={user.avatarUrl} alt={user.username} className="w-12 h-12 rounded-full object-cover" />
-        ) : (
-          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white text-lg font-bold">
-            {getInitials(user.username)}
-          </div>
-        )}
+      <Link to={`/profile/${userId}`} className="flex items-center gap-3">
+      {user.avatarUrl ? (
+        <img 
+          src={user.avatarUrl} 
+          alt={user.username} 
+          className="w-12 h-12 rounded-full object-cover border-2 border-surface-accent"
+        />
+      ) : (
+        <div className="w-12 h-12 rounded-full bg-linear-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white text-lg font-bold">
+          {getInitials(user.username)}
+        </div>
+      )}
         <div>
           <p className="text-white font-semibold text-lg hover:text-brand-400 transition-colors">
             @{user.username}

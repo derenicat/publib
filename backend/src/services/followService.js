@@ -1,6 +1,5 @@
 import * as followRepository from '../repositories/followRepository.js';
 import * as userRepository from '../repositories/userRepository.js';
-import * as activityRepository from '../repositories/activityRepository.js'; // NEW IMPORT
 import AppError from '../utils/appError.js';
 
 export const followUser = async (followerId, followingId) => {
@@ -31,14 +30,6 @@ export const followUser = async (followerId, followingId) => {
     following: followingId,
   });
 
-  // 5. Yeni takip ilişkisi için bir aktivite akışı girişi oluştur
-  await activityRepository.create({
-    user: followerId,
-    type: 'FOLLOW_CREATED',
-    subject: newFollow.id,
-    subjectModel: 'Follow',
-  });
-
   return newFollow;
 };
 
@@ -66,14 +57,14 @@ export const unfollowUser = async (followerId, followingId) => {
 export const getFollowingList = async (userId) => {
   return followRepository.findAll(
     { follower: userId },
-    { path: 'following', select: 'username avatarUrl detailPageId' }
+    { path: 'following', select: 'username avatarUrl' }
   );
 };
 
 export const getFollowersList = async (userId) => {
   return followRepository.findAll(
     { following: userId },
-    { path: 'follower', select: 'username avatarUrl detailPageId' }
+    { path: 'follower', select: 'username avatarUrl' }
   );
 };
 

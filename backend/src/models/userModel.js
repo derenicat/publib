@@ -67,8 +67,7 @@ const userSchema = new mongoose.Schema(
     toJSON: {
       virtuals: true,
       transform: function (doc, ret) {
-        ret.detailPageId = ret.id; // Rename `id` to `detailPageId` for consistency
-        delete ret.id;
+        ret.id = ret._id;
         delete ret._id;
         delete ret.__v;
       },

@@ -12,7 +12,7 @@ const ListModal = ({ isOpen, onClose, onSuccess, initialData = null }) => {
     name: '',
     description: '',
     type: 'Book',
-    isPublic: true
+    isPublic: true,
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -24,7 +24,8 @@ const ListModal = ({ isOpen, onClose, onSuccess, initialData = null }) => {
         name: initialData.name || '',
         description: initialData.description || '',
         type: initialData.type || 'Book',
-        isPublic: initialData.isPublic !== undefined ? initialData.isPublic : true
+        isPublic:
+          initialData.isPublic !== undefined ? initialData.isPublic : true,
       });
     } else {
       // Create modu için reset
@@ -32,17 +33,18 @@ const ListModal = ({ isOpen, onClose, onSuccess, initialData = null }) => {
         name: '',
         description: '',
         type: 'Book',
-        isPublic: true
+        isPublic: true,
       });
     }
     setError(null);
   }, [initialData, isOpen]);
 
   const handleChange = (e) => {
-    const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+    const value =
+      e.target.type === 'checkbox' ? e.target.checked : e.target.value;
     setFormData({
       ...formData,
-      [e.target.name]: value
+      [e.target.name]: value,
     });
   };
 
@@ -54,7 +56,8 @@ const ListModal = ({ isOpen, onClose, onSuccess, initialData = null }) => {
     try {
       if (isEditMode) {
         // Güncelleme
-        const listId = initialData.id || initialData.detailPageId || initialData._id;
+        const listId =
+          initialData.id || initialData.detailPageId || initialData._id;
         await userListService.updateList(listId, formData);
         toast.success('List updated successfully!');
       } else {
@@ -62,18 +65,25 @@ const ListModal = ({ isOpen, onClose, onSuccess, initialData = null }) => {
         await userListService.createList(formData);
         toast.success('List created successfully!');
       }
-      
-      onSuccess(); 
+
+      onSuccess();
       onClose();
     } catch (err) {
-      toast.error(err.response?.data?.message || `Failed to ${isEditMode ? 'update' : 'create'} list.`);
+      toast.error(
+        err.response?.data?.message ||
+          `Failed to ${isEditMode ? 'update' : 'create'} list.`
+      );
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={isEditMode ? "Edit List" : "Create New List"}>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={isEditMode ? 'Edit List' : 'Create New List'}
+    >
       <form onSubmit={handleSubmit} className="space-y-6">
         {error && (
           <div className="bg-danger/10 border border-danger text-danger text-sm rounded-lg p-3">
@@ -83,7 +93,10 @@ const ListModal = ({ isOpen, onClose, onSuccess, initialData = null }) => {
 
         {/* Name */}
         <div>
-          <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-1">
+          <label
+            htmlFor="name"
+            className="block text-sm font-medium text-gray-300 mb-1"
+          >
             List Name <span className="text-danger">*</span>
           </label>
           <input
@@ -100,7 +113,10 @@ const ListModal = ({ isOpen, onClose, onSuccess, initialData = null }) => {
 
         {/* Description */}
         <div>
-          <label htmlFor="description" className="block text-sm font-medium text-gray-300 mb-1">
+          <label
+            htmlFor="description"
+            className="block text-sm font-medium text-gray-300 mb-1"
+          >
             Description
           </label>
           <textarea
@@ -117,21 +133,28 @@ const ListModal = ({ isOpen, onClose, onSuccess, initialData = null }) => {
         {/* List Type Selection (Radio Group) - DISABLED IN EDIT MODE */}
         <div>
           <label className="block text-sm font-medium text-gray-300 mb-2">
-            List Type <span className="text-secondary text-xs font-normal">(Cannot be changed {isEditMode ? '' : 'later'})</span>
+            List Type{' '}
+            <span className="text-secondary text-xs font-normal">
+              (Cannot be changed {isEditMode ? '' : 'later'})
+            </span>
           </label>
           <div className="grid grid-cols-2 gap-4">
-            <label className={`
+            <label
+              className={`
               cursor-pointer border rounded-xl p-4 flex flex-col items-center gap-2 transition-all
-              ${formData.type === 'Book' 
-                ? 'border-brand-500 bg-brand-500/10 text-brand-500' 
-                : 'border-border bg-background text-secondary'}
+              ${
+                formData.type === 'Book'
+                  ? 'border-brand-500 bg-brand-500/10 text-brand-500'
+                  : 'border-border bg-background text-secondary'
+              }
               ${isEditMode ? 'opacity-50 cursor-not-allowed' : 'hover:border-gray-600'}
-            `}>
-              <input 
-                type="radio" 
-                name="type" 
-                value="Book" 
-                checked={formData.type === 'Book'} 
+            `}
+            >
+              <input
+                type="radio"
+                name="type"
+                value="Book"
+                checked={formData.type === 'Book'}
                 onChange={handleChange}
                 disabled={isEditMode}
                 className="sr-only"
@@ -140,18 +163,22 @@ const ListModal = ({ isOpen, onClose, onSuccess, initialData = null }) => {
               <span className="font-bold">Book List</span>
             </label>
 
-            <label className={`
+            <label
+              className={`
               cursor-pointer border rounded-xl p-4 flex flex-col items-center gap-2 transition-all
-              ${formData.type === 'Movie' 
-                ? 'border-brand-500 bg-brand-500/10 text-brand-500' 
-                : 'border-border bg-background text-secondary'}
+              ${
+                formData.type === 'Movie'
+                  ? 'border-brand-500 bg-brand-500/10 text-brand-500'
+                  : 'border-border bg-background text-secondary'
+              }
               ${isEditMode ? 'opacity-50 cursor-not-allowed' : 'hover:border-gray-600'}
-            `}>
-              <input 
-                type="radio" 
-                name="type" 
-                value="Movie" 
-                checked={formData.type === 'Movie'} 
+            `}
+            >
+              <input
+                type="radio"
+                name="type"
+                value="Movie"
+                checked={formData.type === 'Movie'}
                 onChange={handleChange}
                 disabled={isEditMode}
                 className="sr-only"
@@ -166,17 +193,19 @@ const ListModal = ({ isOpen, onClose, onSuccess, initialData = null }) => {
         <div className="flex items-center justify-between bg-background p-4 rounded-lg border border-border">
           <div>
             <span className="text-white font-medium block">Public List</span>
-            <span className="text-secondary text-xs">Everyone can see this list</span>
+            <span className="text-secondary text-xs">
+              Everyone can see this list
+            </span>
           </div>
           <label className="relative inline-flex items-center cursor-pointer">
-            <input 
-              type="checkbox" 
-              name="isPublic" 
-              checked={formData.isPublic} 
+            <input
+              type="checkbox"
+              name="isPublic"
+              checked={formData.isPublic}
               onChange={handleChange}
-              className="sr-only peer" 
+              className="sr-only peer"
             />
-            <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-500"></div>
+            <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-500"></div>
           </label>
         </div>
 
@@ -185,12 +214,18 @@ const ListModal = ({ isOpen, onClose, onSuccess, initialData = null }) => {
           type="submit"
           disabled={loading}
           className={`w-full py-3 rounded-full font-bold text-white transition-all ${
-            loading 
-            ? 'bg-brand-700 cursor-not-allowed opacity-70' 
-            : 'bg-brand-600 hover:bg-brand-700 shadow-lg shadow-brand-500/20 hover:shadow-brand-500/40'
+            loading
+              ? 'bg-brand-700 cursor-not-allowed opacity-70'
+              : 'bg-brand-600 hover:bg-brand-700 shadow-lg shadow-brand-500/20 hover:shadow-brand-500/40'
           }`}
         >
-          {loading ? (isEditMode ? 'Updating...' : 'Creating...') : (isEditMode ? 'Save Changes' : 'Create List')}
+          {loading
+            ? isEditMode
+              ? 'Updating...'
+              : 'Creating...'
+            : isEditMode
+              ? 'Save Changes'
+              : 'Create List'}
         </button>
       </form>
     </Modal>

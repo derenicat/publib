@@ -28,20 +28,18 @@ const ProfilePage = () => {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
 
-  // Fetch Profile User
+  // Fetch Profile User (External User by ID)
   useEffect(() => {
     const fetchProfileUser = async () => {
+      if (!id) return; // Sadece ID varsa çalış
+
       setLoading(true);
+      console.log('[DEBUG] Fetching user profile for ID:', id);
       try {
-        if (id) {
-          // ID varsa o kullanıcıyı çek
-          const response = await userService.getUserById(id);
-          if (response.data && response.data.user) {
-            setProfileUser(response.data.user);
-          }
-        } else {
-          // ID yoksa (kendi profilim)
-          setProfileUser(currentUser);
+        const response = await userService.getUserById(id);
+        console.log('[DEBUG] User profile response:', response);
+        if (response.data && response.data.user) {
+          setProfileUser(response.data.user);
         }
       } catch (err) {
         console.error("Kullanıcı yüklenemedi:", err);
@@ -51,10 +49,27 @@ const ProfilePage = () => {
       }
     };
 
-    if (!authLoading) {
-      fetchProfileUser();
+    fetchProfileUser();
+  }, [id]); // Sadece ID değişince çalışır
+
+  // Set Profile User (Own Profile)
+  useEffect(() => {
+    if (!id && currentUser) {
+      // ID yoksa ve currentUser varsa, profil kullanıcısı currentUser'dır.
+      // Loading yapmaya gerek yok çünkü currentUser zaten authContext'ten geliyor.
+      setProfileUser(currentUser);
+      setLoading(false);
+    } else if (!id && authLoading) {
+       // Kendi profilimiz ama auth yükleniyor
+       setLoading(true);
     }
   }, [id, currentUser, authLoading]);
+
+  useEffect(() => {
+      if (profileUser) {
+          console.log('[DEBUG] ProfileUser updated:', profileUser);
+      }
+  }, [profileUser]);
 
   // Reset pagination when tab or user changes
   useEffect(() => {
@@ -73,7 +88,7 @@ const ProfilePage = () => {
       if (page === 1) setLoadingTabData(true);
       
       try {
-        const userId = profileUser.id || profileUser._id;
+        const userId = profileUser.id;
         const limit = 10;
 
         if (activeTab === 'activity') {
@@ -124,7 +139,9 @@ const ProfilePage = () => {
   }
 
   // Kendi profilimiz mi?
-  const isOwnProfile = currentUser && (currentUser.id === profileUser.id || currentUser._id === profileUser._id);
+  const isOwnProfile = !id || (
+      currentUser && profileUser && (currentUser.id?.toString() === profileUser.id?.toString())
+  );
 
   // Tab Content Render Logic
   const renderTabContent = () => {

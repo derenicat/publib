@@ -1,5 +1,6 @@
 import { User } from '../models/index.js';
 import APIFeatures from '../utils/apiFeatures.js';
+import mongoose from 'mongoose'; // mongoose import edildi
 
 export const findByEmail = async (email) => {
   // Since we need the password for the 'login' process,
@@ -13,6 +14,51 @@ export const findById = async (id) => {
 
 export const findByIdWithPassword = async (id) => {
   return User.findById(id).select('+password');
+};
+
+// Aggregation ile kullanıcı ve takipçi istatistiklerini tek seferde getir
+export const findByIdWithStats = async (id) => {
+  const objectId = new mongoose.Types.ObjectId(id);
+
+  const result = await User.aggregate([
+    { $match: { _id: objectId } },
+    // Takipçileri say (following: userId)
+    {
+      $lookup: {
+        from: 'follows', // Koleksiyon adı
+        localField: '_id',
+        foreignField: 'following',
+        as: 'followersData'
+      }
+    },
+    // Takip edilenleri say (follower: userId)
+    {
+      $lookup: {
+        from: 'follows',
+        localField: '_id',
+        foreignField: 'follower',
+        as: 'followingData'
+      }
+    },
+    // Sayıları hesapla ve ekle
+    {
+      $addFields: {
+        followersCount: { $size: '$followersData' },
+        followingCount: { $size: '$followingData' }
+      }
+    },
+    // Gereksiz verileri (büyük dizileri) çıkar
+    {
+      $project: {
+        followersData: 0,
+        followingData: 0,
+        password: 0,
+        __v: 0
+      }
+    }
+  ]);
+
+  return result[0]; // Aggregate dizi döner, ilk elemanı al
 };
 
 export const findByPasswordResetToken = async (hashedToken) => {

@@ -84,9 +84,8 @@ const UserListsTab = ({ userId, isOwnProfile }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
           {lists.map((list) => (
             <Link // Kartı Link ile sardık
-              to={`/list/${list.detailPageId}`} // Liste detay sayfasına yönlendir
-              key={list.detailPageId} 
-              className="group bg-surface p-6 rounded-2xl border border-border hover:border-brand-500/50 transition-all cursor-pointer hover:shadow-lg hover:shadow-brand-900/10 block"
+              to={`/list/${list.id}`} // Liste detay sayfasına yönlendir
+              key={list.id}              className="group bg-surface p-6 rounded-2xl border border-border hover:border-brand-500/50 transition-all cursor-pointer hover:shadow-lg hover:shadow-brand-900/10 block"
             >
               <div className="flex justify-between items-start mb-4">
                 <div>

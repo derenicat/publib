@@ -1,6 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { PencilIcon, TrashIcon, GlobeAltIcon, LockClosedIcon, PlusIcon } from '@heroicons/react/24/outline';
+import {
+  PencilIcon,
+  TrashIcon,
+  GlobeAltIcon,
+  LockClosedIcon,
+  PlusIcon,
+} from '@heroicons/react/24/outline';
 import userListService from '../../services/userListService';
 import { useAuth } from '../../context/AuthContext';
 import ListModal from '../../components/profile/ListModal';
@@ -10,7 +16,7 @@ const ListDetailPage = () => {
   const { id } = useParams(); // URL'den liste ID'sini al
   const { user: currentUser } = useAuth(); // Oturum açmış kullanıcı
   const navigate = useNavigate();
-  
+
   const [list, setList] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -29,7 +35,7 @@ const ListDetailPage = () => {
           setError('List not found.');
         }
       } catch (err) {
-        console.error("Liste detayları yüklenirken hata:", err);
+        console.error('Liste detayları yüklenirken hata:', err);
         setError(err.response?.data?.message || 'Failed to load list details.');
       } finally {
         setLoading(false);
@@ -43,60 +49,72 @@ const ListDetailPage = () => {
 
   const handleDelete = async () => {
     // Confirm with a toast promise or a custom modal for better UX
-    toast.custom((t) => (
-      <div
-        className={`${
-          t.visible ? 'animate-enter' : 'animate-leave'
-        } max-w-md w-full bg-surface shadow-lg rounded-lg pointer-events-auto flex ring-1 ring-black ring-opacity-5 border border-border`}
-      >
-        <div className="flex-1 w-0 p-4">
-          <div className="flex items-start">
-            <div className="flex-shrink-0 pt-0.5">
-              <TrashIcon className="h-6 w-6 text-red-500" aria-hidden="true" />
-            </div>
-            <div className="ml-3 flex-1">
-              <p className="text-sm font-medium text-white">
-                Delete List
-              </p>
-              <p className="mt-1 text-sm text-gray-400">
-                Are you sure you want to delete this list? This action cannot be undone.
-              </p>
+    toast.custom(
+      (t) => (
+        <div
+          className={`${
+            t.visible ? 'animate-enter' : 'animate-leave'
+          } max-w-md w-full bg-surface shadow-lg rounded-lg pointer-events-auto flex ring-1 ring-black ring-opacity-5 border border-border`}
+        >
+          <div className="flex-1 w-0 p-4">
+            <div className="flex items-start">
+              <div className="shrink-0 pt-0.5">
+                <TrashIcon
+                  className="h-6 w-6 text-red-500"
+                  aria-hidden="true"
+                />
+              </div>
+              <div className="ml-3 flex-1">
+                <p className="text-sm font-medium text-white">Delete List</p>
+                <p className="mt-1 text-sm text-gray-400">
+                  Are you sure you want to delete this list? This action cannot
+                  be undone.
+                </p>
+              </div>
             </div>
           </div>
+          <div className="flex border-l border-border">
+            <button
+              onClick={() => {
+                toast.dismiss(t.id);
+                toast
+                  .promise(userListService.deleteList(id), {
+                    loading: 'Deleting list...',
+                    success: <b>List deleted!</b>,
+                    error: (err) => {
+                      navigate('/profile'); // Hata durumunda da profile yönlendir
+                      return (
+                        <b>
+                          {err.response?.data?.message ||
+                            'Failed to delete list.'}
+                        </b>
+                      );
+                    },
+                  })
+                  .then(() => {
+                    navigate('/profile'); // Başarılıysa profile yönlendir
+                  });
+              }}
+              className="w-full border border-transparent rounded-none rounded-r-lg p-4 flex items-center justify-center text-sm font-medium text-red-400 hover:text-white hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500"
+            >
+              Delete
+            </button>
+            <button
+              onClick={() => toast.dismiss(t.id)}
+              className="w-full border border-transparent rounded-none rounded-r-lg p-4 flex items-center justify-center text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
+            >
+              Cancel
+            </button>
+          </div>
         </div>
-        <div className="flex border-l border-border">
-          <button
-            onClick={() => {
-              toast.dismiss(t.id);
-              toast.promise(userListService.deleteList(id), {
-                loading: 'Deleting list...',
-                success: <b>List deleted!</b>,
-                error: (err) => {
-                  navigate('/profile'); // Hata durumunda da profile yönlendir
-                  return <b>{err.response?.data?.message || 'Failed to delete list.'}</b>;
-                },
-              }).then(() => {
-                navigate('/profile'); // Başarılıysa profile yönlendir
-              });
-            }}
-            className="w-full border border-transparent rounded-none rounded-r-lg p-4 flex items-center justify-center text-sm font-medium text-red-400 hover:text-white hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500"
-          >
-            Delete
-          </button>
-          <button
-            onClick={() => toast.dismiss(t.id)}
-            className="w-full border border-transparent rounded-none rounded-r-lg p-4 flex items-center justify-center text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
-          >
-            Cancel
-          </button>
-        </div>
-      </div>
-    ), { duration: Infinity }); // Süresiz göster
+      ),
+      { duration: Infinity }
+    ); // Süresiz göster
   };
 
   const handleListUpdated = () => {
     toast.success('List updated successfully!');
-    setRefreshTrigger(prev => prev + 1); // Listeyi yeniden çek
+    setRefreshTrigger((prev) => prev + 1); // Listeyi yeniden çek
   };
 
   if (loading) {
@@ -112,11 +130,17 @@ const ListDetailPage = () => {
   }
 
   if (!list) {
-    return <div className="text-center py-20 text-secondary text-lg">List details could not be loaded.</div>;
+    return (
+      <div className="text-center py-20 text-secondary text-lg">
+        List details could not be loaded.
+      </div>
+    );
   }
 
   // Liste sahibi miyiz?
-  const isOwner = currentUser && (currentUser.id === list.user.id || currentUser._id === list.user._id);
+  const isOwner =
+    currentUser &&
+    (currentUser.id === list.user.id || currentUser._id === list.user._id);
 
   // Varsayılan liste mi? (My Books / My Movies)
   // Bu listeler sistem tarafından oluşturulur ve silinemez/düzenlenemez.
@@ -129,43 +153,51 @@ const ListDetailPage = () => {
         <div className="flex justify-between items-start mb-4">
           <div>
             <h1 className="text-3xl font-bold text-white mb-2">{list.name}</h1>
-            <p className="text-secondary text-base mb-3">{list.description || "No description provided."}</p>
-            
+            <p className="text-secondary text-base mb-3">
+              {list.description || 'No description provided.'}
+            </p>
+
             <div className="flex items-center gap-3 text-sm">
-                <span className={`text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-full border ${
-                    list.type === 'Book' 
-                    ? 'border-blue-500/30 text-blue-400 bg-blue-500/10' 
+              <span
+                className={`text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-full border ${
+                  list.type === 'Book'
+                    ? 'border-blue-500/30 text-blue-400 bg-blue-500/10'
                     : 'border-red-500/30 text-red-400 bg-red-500/10'
-                }`}>
-                    {list.type}
-                </span>
-                <span className="text-secondary flex items-center gap-1">
-                    {list.isPublic ? (
-                        <GlobeAltIcon className="h-4 w-4" />
-                    ) : (
-                        <LockClosedIcon className="h-4 w-4" />
-                    )}
-                    {list.isPublic ? 'Public' : 'Private'}
-                </span>
-                <span className="text-secondary text-sm">
-                    by <Link to={`/profile/${list.user.detailPageId || list.user.id}`} className="text-brand-400 hover:underline">
-                        @{list.user.username}
-                    </Link>
-                </span>
+                }`}
+              >
+                {list.type}
+              </span>
+              <span className="text-secondary flex items-center gap-1">
+                {list.isPublic ? (
+                  <GlobeAltIcon className="h-4 w-4" />
+                ) : (
+                  <LockClosedIcon className="h-4 w-4" />
+                )}
+                {list.isPublic ? 'Public' : 'Private'}
+              </span>
+              <span className="text-secondary text-sm">
+                by{' '}
+                <Link
+                  to={`/profile/${list.user.id}`}
+                  className="text-brand-400 hover:underline"
+                >
+                  @{list.user.username}
+                </Link>
+              </span>
             </div>
           </div>
-          
+
           {/* Actions for Owner (Varsayılan listeler hariç) */}
           {isOwner && !isDefaultList && (
             <div className="flex gap-2">
-              <button 
+              <button
                 onClick={() => setIsEditModalOpen(true)}
                 className="flex items-center gap-2 px-4 py-2 bg-surface-accent hover:bg-border text-white text-sm font-medium rounded-full transition-colors border border-border"
               >
                 <PencilIcon className="h-4 w-4" />
                 Edit List
               </button>
-              <button 
+              <button
                 onClick={handleDelete}
                 className="flex items-center gap-2 px-4 py-2 bg-danger/20 hover:bg-danger/40 text-danger text-sm font-medium rounded-full transition-colors border border-danger/50"
               >
@@ -177,18 +209,22 @@ const ListDetailPage = () => {
         </div>
 
         {/* List Items */}
-        <h2 className="text-2xl font-bold text-white mb-6">Items ({list.entries.length})</h2>
+        <h2 className="text-2xl font-bold text-white mb-6">
+          Items ({list.entries.length})
+        </h2>
         {list.entries.length === 0 ? (
           <div className="text-center py-12 bg-surface rounded-2xl border border-border border-dashed">
             <p className="text-secondary">No items in this list yet.</p>
             {isOwner && (
-                <button 
-                  onClick={() => navigate(`/search?type=${list.type.toLowerCase()}`)}
-                  className="mt-4 px-6 py-2 bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium rounded-full transition-colors shadow-lg shadow-brand-900/20 flex items-center gap-2 mx-auto"
-                >
-                    <PlusIcon className="h-5 w-5" />
-                    Add Items
-                </button>
+              <button
+                onClick={() =>
+                  navigate(`/search?type=${list.type.toLowerCase()}`)
+                }
+                className="mt-4 px-6 py-2 bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium rounded-full transition-colors shadow-lg shadow-brand-900/20 flex items-center gap-2 mx-auto"
+              >
+                <PlusIcon className="h-5 w-5" />
+                Add Items
+              </button>
             )}
           </div>
         ) : (
@@ -196,23 +232,35 @@ const ListDetailPage = () => {
             {list.entries.map((entry) => {
               const item = entry.item;
               const type = list.type.toLowerCase();
-              const id = item.id || item._id || item.googleBooksId || item.tmdbId;
+              const id =
+                item.id || item._id || item.googleBooksId || item.tmdbId;
               const title = item.title;
-              const image = type === 'book' ? item.coverImage : `https://image.tmdb.org/t/p/w500${item.posterPath}`;
-              const date = type === 'book' ? item.publishedDate : item.releaseDate;
-              const subtitle = type === 'book' ? (item.authors ? item.authors[0] : 'Unknown Author') : (date ? date.split('-')[0] : '');
+              const image =
+                type === 'book'
+                  ? item.coverImage
+                  : `https://image.tmdb.org/t/p/w500${item.posterPath}`;
+              const date =
+                type === 'book' ? item.publishedDate : item.releaseDate;
+              const subtitle =
+                type === 'book'
+                  ? item.authors
+                    ? item.authors[0]
+                    : 'Unknown Author'
+                  : date
+                    ? date.split('-')[0]
+                    : '';
 
               return (
-                <Link 
-                  to={`/media/${type}/${id}`} 
-                  key={entry.id} 
+                <Link
+                  to={`/media/${type}/${id}`}
+                  key={entry.id}
                   className="group block bg-surface rounded-xl border border-border overflow-hidden hover:border-brand-500/50 transition-all hover:shadow-xl hover:shadow-brand-900/20"
                 >
-                  <div className="aspect-[2/3] bg-gray-800 relative overflow-hidden">
+                  <div className="aspect-2/3 bg-gray-800 relative overflow-hidden">
                     {image ? (
-                      <img 
-                        src={image} 
-                        alt={title} 
+                      <img
+                        src={image}
+                        alt={title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                     ) : (
@@ -220,7 +268,7 @@ const ListDetailPage = () => {
                         No Image
                       </div>
                     )}
-                    
+
                     {/* Status Badge */}
                     <div className="absolute top-2 right-2 bg-surface/90 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-1 rounded-full border border-border shadow-sm">
                       {entry.status.replace(/_/g, ' ')}

@@ -1,4 +1,5 @@
 import * as userRepository from '../repositories/userRepository.js';
+import * as followRepository from '../repositories/followRepository.js'; // followRepository import edildi
 import AppError from '../utils/appError.js';
 import { generateToken } from '../utils/jwtHelper.js';
 
@@ -101,6 +102,9 @@ const filterUserForPublicProfile = (user) => ({
   avatarUrl: user.avatarUrl,
   bio: user.bio,
   createdAt: user.createdAt,
+  followersCount: user.followersCount || 0,
+  followingCount: user.followingCount || 0,
+  isFollowing: user.isFollowing || false, // Varsayılan false
 });
 
 // --- Publicly accessible user services --- //
@@ -117,17 +121,28 @@ export const getAllUsers = async (queryParams) => {
   return filteredUsers;
 };
 
-export const getUserById = async (userId) => {
-  const user = await userRepository.findById(userId);
+export const getUserById = async (userId, requesterId) => {
+  // Aggregation pipeline ile istatistikleri de içeren kullanıcı verisini getir
+  const user = await userRepository.findByIdWithStats(userId);
 
   if (!user) {
     throw new AppError('No user found with that ID.', 404);
   }
 
+  // Takip durumu kontrolü
+  let isFollowing = false;
+  if (requesterId && requesterId.toString() !== user._id.toString()) {
+      console.log('[DEBUG] Checking follow status. Requester:', requesterId, 'Target:', user._id); // DEBUG
+      const follow = await followRepository.findOne({ follower: requesterId, following: user._id });
+      console.log('[DEBUG] Follow record found:', follow); // DEBUG
+      isFollowing = !!follow;
+  }
+  console.log('[DEBUG] isFollowing:', isFollowing); // DEBUG
+
   // KULLANICI VERİSİ TEMİZLEME (SANITIZATION):
   // Kullanıcı nesnesini, herkese açık detaylı profil görünümünde gösterilmeden önce
   // hassas bilgilerden arındırır.
-  const filteredUser = filterUserForPublicProfile(user);
+  const filteredUser = filterUserForPublicProfile({ ...user, isFollowing }); // isFollowing eklendi
 
   return filteredUser;
 };

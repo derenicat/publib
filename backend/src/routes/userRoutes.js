@@ -9,7 +9,7 @@ import {
   updateUser,
   deleteUser,
 } from '../controllers/userController.js';
-import { protect, restrictTo } from '../middlewares/authMiddleware.js';
+import { protect, restrictTo, isLoggedIn } from '../middlewares/authMiddleware.js'; // isLoggedIn eklendi
 import followRouter from './followRoutes.js';
 
 const router = express.Router();
@@ -35,7 +35,7 @@ router.delete('/me', protect, deleteMe);
 // Bu rotalar, URL'de sağlanan kullanıcı ID'sine göre işlemleri yönetir.
 router
   .route('/:id')
-  .get(getUserById) // Genel: Herkes bir kullanıcının herkese açık profilini ID ile alabilir.
+  .get(isLoggedIn, getUserById) // isLoggedIn eklendi: Kullanıcı giriş yapmışsa takip durumunu görebilir
   .patch(protect, restrictTo('admin'), updateUser) // Korumalı: Sadece 'admin' rolündeki kullanıcılar güncelleyebilir.
   .delete(protect, restrictTo('admin'), deleteUser); // Korumalı: Sadece 'admin' rolündeki kullanıcılar silebilir.
 
