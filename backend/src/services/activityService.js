@@ -2,61 +2,40 @@ import * as activityRepository from '../repositories/activityRepository.js';
 import * as followRepository from '../repositories/followRepository.js';
 import AppError from '../utils/appError.js';
 
+// Ortak populate seçenekleri (DRY prensibi)
+const getCommonPopulateOptions = () => [
+  { path: 'user', select: 'username avatarUrl _id' }, // User için _id'yi açıkça seçiyoruz.
+  { path: 'comments.user', select: 'username avatarUrl _id' }, // Yorum sahibinin _id'sini açıkça seçiyoruz.
+  {
+    path: 'subject',
+    populate: [
+      // Book/Movie gibi harici entegrasyonu olan öğeler için detailPageId kalmalı.
+      { path: 'item', select: 'title posterPath detailPageId', strictPopulate: false },
+      // Follower ve Following de User referansı olduğu için _id'yi seçiyoruz.
+      { path: 'follower', select: 'username avatarUrl _id', strictPopulate: false },
+      { path: 'following', select: 'username avatarUrl _id', strictPopulate: false },
+    ],
+  },
+];
+
 export const getPersonalFeed = async (userId, queryParams) => {
-  const populateOptions = [
-    { path: 'user', select: 'username avatarUrl detailPageId' },
-    {
-      path: 'subject', // Eylemin kendisini (Review, LibraryEntry, Follow) populate et
-      populate: [
-        // subject'in içindeki item'ı populate et (Review veya LibraryEntry için)
-        { path: 'item', select: 'title posterPath detailPageId', strictPopulate: false },
-        // subject'in içindeki takipçi/takip edilen user'ı populate et (Follow için)
-        { path: 'follower', select: 'username avatarUrl detailPageId', strictPopulate: false },
-        { path: 'following', select: 'username avatarUrl detailPageId', strictPopulate: false },
-      ],
-    },
-  ];
+  const populateOptions = getCommonPopulateOptions();
   return activityRepository.findAll({ user: userId, ...queryParams }, populateOptions);
 };
 
 export const getSocialFeed = async (userId, queryParams) => {
   // 1. Mevcut kullanıcının takip ettiği kullanıcıların listesini al.
   const following = await followRepository.findAll({ follower: userId });
-  const followingIds = following.map((f) => f.following); // detailPageId'leri al (populate edilmediği için direkt ID)
+  const followingIds = following.map((f) => f.following);
 
-  // 2. Sadece takip edilenlerin aktivitelerini getir (Kendi aktivitelerini hariç tut)
-  // followingIds.push(userId); // Kaldırıldı
-
-  // 3. Bu kullanıcıların tüm aktivitelerini getir.
-  const populateOptions = [
-    { path: 'user', select: 'username avatarUrl detailPageId' },
-    {
-      path: 'subject',
-      populate: [
-        { path: 'item', select: 'title posterPath detailPageId', strictPopulate: false },
-        { path: 'follower', select: 'username avatarUrl detailPageId', strictPopulate: false },
-        { path: 'following', select: 'username avatarUrl detailPageId', strictPopulate: false },
-      ],
-    },
-  ];
+  // 2. Sadece takip edilenlerin aktivitelerini getir
+  const populateOptions = getCommonPopulateOptions();
 
   return activityRepository.findAll({ user: { $in: followingIds }, ...queryParams }, populateOptions);
 };
 
 export const getGlobalFeed = async (queryParams) => {
-  // Platform genelindeki tüm aktiviteleri getirir.
-  const populateOptions = [
-    { path: 'user', select: 'username avatarUrl detailPageId' },
-    {
-      path: 'subject',
-      populate: [
-        { path: 'item', select: 'title posterPath detailPageId', strictPopulate: false },
-        { path: 'follower', select: 'username avatarUrl detailPageId', strictPopulate: false },
-        { path: 'following', select: 'username avatarUrl detailPageId', strictPopulate: false },
-      ],
-    },
-  ];
-
+  const populateOptions = getCommonPopulateOptions();
   return activityRepository.findAll(queryParams, populateOptions);
 };
 

@@ -16,6 +16,11 @@ const bookService = {
     return response.data;
   },
 
+  getTopRated: async () => {
+    const response = await api.get('/books/top-5');
+    return response.data;
+  },
+
   // Kitap detayını getir
   getBookDetails: async (id) => {
     const response = await api.get(`/books/${id}`);

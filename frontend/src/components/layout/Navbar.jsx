@@ -64,67 +64,63 @@ const Navbar = () => {
               <NavLink to="/search" icon={MagnifyingGlassIcon}>Search</NavLink>
               <NavLink to="/discover" icon={SparklesIcon}>Discover</NavLink>
               <NavLink to="/users/search" icon={UserGroupIcon}>Find Users</NavLink>
+              <NavLink to="/feed" icon={RssIcon}>Feed</NavLink>
               
               {user ? (
-                <>
-                  <NavLink to="/feed" icon={RssIcon}>Feed</NavLink>
-                  
-                  {/* Profile Icon and Dropdown */}
-                  <div className="relative ml-4" ref={menuRef}>
-                      <div>
-                          <button 
-                            type="button"
-                            onClick={() => setIsMenuOpen(!isMenuOpen)}
-                            className="flex items-center justify-center rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-surface focus:ring-brand-500 transition-transform hover:scale-105"
-                            id="user-menu-button"
-                            aria-expanded={isMenuOpen}
-                            aria-haspopup="true"
-                          >
-                              <span className="sr-only">Open user menu</span>
-                              {user.avatarUrl ? (
-                                  <img className="h-9 w-9 rounded-full object-cover border-2 border-surface-accent" src={user.avatarUrl} alt="" />
-                              ) : (
-                                  <UserCircleIcon className="h-9 w-9 text-gray-400 hover:text-white transition-colors" />
-                              )}
-                          </button>
-                      </div>
+                <div className="relative ml-4" ref={menuRef}>
+                    <div>
+                        <button 
+                          type="button"
+                          onClick={() => setIsMenuOpen(!isMenuOpen)}
+                          className="flex items-center justify-center rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-surface focus:ring-brand-500 transition-transform hover:scale-105"
+                          id="user-menu-button"
+                          aria-expanded={isMenuOpen}
+                          aria-haspopup="true"
+                        >
+                            <span className="sr-only">Open user menu</span>
+                            {user.avatarUrl ? (
+                                <img className="h-9 w-9 rounded-full object-cover border-2 border-surface-accent" src={user.avatarUrl} alt="" />
+                            ) : (
+                                <UserCircleIcon className="h-9 w-9 text-gray-400 hover:text-white transition-colors" />
+                            )}
+                        </button>
+                    </div>
 
-                      {/* Dropdown Menu */}
-                      {isMenuOpen && (
-                          <div
-                            className="origin-top-right absolute right-0 mt-2 w-48 rounded-xl shadow-2xl py-1 bg-surface ring-1 ring-black ring-opacity-5 focus:outline-none border border-border overflow-hidden animate-fade-in-down"
-                            role="menu"
-                            aria-orientation="vertical"
-                            aria-labelledby="user-menu-button"
+                    {/* Dropdown Menu */}
+                    {isMenuOpen && (
+                        <div
+                          className="origin-top-right absolute right-0 mt-2 w-48 rounded-xl shadow-2xl py-1 bg-surface ring-1 ring-black ring-opacity-5 focus:outline-none border border-border overflow-hidden animate-fade-in-down"
+                          role="menu"
+                          aria-orientation="vertical"
+                          aria-labelledby="user-menu-button"
+                          tabIndex="-1"
+                        >
+                          <div className="px-4 py-3 border-b border-border mb-1">
+                              <p className="text-sm text-white font-bold truncate">{user.username}</p>
+                              <p className="text-xs text-secondary truncate">{user.email}</p>
+                          </div>
+                          
+                          <Link
+                            to="/profile"
+                            className="block px-4 py-2 text-sm text-gray-300 hover:bg-surface-accent hover:text-white transition-colors"
+                            role="menuitem"
+                            tabIndex="-1"
+                            onClick={() => setIsMenuOpen(false)}
+                          >
+                            Your Profile
+                          </Link>
+                          <button
+                            onClick={handleLogout}
+                            className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-red-500/10 transition-colors"
+                            role="menuitem"
                             tabIndex="-1"
                           >
-                            <div className="px-4 py-3 border-b border-border mb-1">
-                                <p className="text-sm text-white font-bold truncate">{user.username}</p>
-                                <p className="text-xs text-secondary truncate">{user.email}</p>
-                            </div>
-                            
-                            <Link
-                              to="/profile"
-                              className="block px-4 py-2 text-sm text-gray-300 hover:bg-surface-accent hover:text-white transition-colors"
-                              role="menuitem"
-                              tabIndex="-1"
-                              onClick={() => setIsMenuOpen(false)}
-                            >
-                              Your Profile
-                            </Link>
-                            <button
-                              onClick={handleLogout}
-                              className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-red-500/10 transition-colors"
-                              role="menuitem"
-                              tabIndex="-1"
-                            >
-                              <ArrowLeftOnRectangleIcon className="h-5 w-5" />
-                              Sign out
-                            </button>
-                          </div>
-                      )}
-                  </div>
-                </>
+                            <ArrowLeftOnRectangleIcon className="h-5 w-5" />
+                            Sign out
+                          </button>
+                        </div>
+                    )}
+                </div>
               ) : (
                 <div className="flex items-center gap-3 ml-4">
                   <Link to="/login" className="text-gray-300 hover:text-white px-4 py-2 rounded-full text-sm font-medium transition-colors hover:bg-surface-accent">

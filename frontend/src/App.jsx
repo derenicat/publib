@@ -14,16 +14,9 @@ import SearchPage from './pages/media/SearchPage';
 import MediaDetailPage from './pages/media/MediaDetailPage';
 import DiscoveryPage from './pages/media/DiscoveryPage';
 import FeedPage from './pages/feed/FeedPage';
-import UserSearchPage from './pages/users/UserSearchPage'; // Yeni eklendi
+import HomePage from './pages/home/HomePage'; // Updated import
+import UserSearchPage from './pages/users/UserSearchPage'; 
 import { Toaster } from 'react-hot-toast';
-
-// Placeholder Components
-const HomePage = () => (
-  <div className="text-center mt-20">
-    <h1 className="text-4xl font-bold text-white mb-4">Welcome to Publib</h1>
-    <p className="text-xl text-secondary">Your social library platform.</p>
-  </div>
-);
 
 const NotFoundPage = () => (
   <div className="text-center py-20">

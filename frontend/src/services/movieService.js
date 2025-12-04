@@ -15,6 +15,11 @@ const movieService = {
     return response.data;
   },
 
+  getTopRated: async () => {
+    const response = await api.get('/movies/top-5');
+    return response.data;
+  },
+
   // Film detayını getir
   getMovieDetails: async (id) => {
     const response = await api.get(`/movies/${id}`);

@@ -6,45 +6,102 @@ import {
   ChatBubbleBottomCenterTextIcon,
   UserCircleIcon,
   PlusIcon,
-} from '@heroicons/react/24/outline'; // Outline ikonlar
-import { HeartIcon as HeartIconSolid } from '@heroicons/react/24/solid'; // Dolu kalp ikonu için solid
-import ReviewCard from '../media/ReviewCard'; // ReviewCard import edildi
+  TrashIcon,
+} from '@heroicons/react/24/outline';
+import { HeartIcon as HeartIconSolid } from '@heroicons/react/24/solid';
+import ReviewCard from '../media/ReviewCard';
 import { getInitials, getRelativeTime } from '../../utils/helpers';
+import activityService from '../../services/activityService';
+import toast from 'react-hot-toast';
 
 const ActivityCard = ({ activity }) => {
   const { user: currentUser } = useAuth();
   const [showCommentInput, setShowCommentInput] = useState(false);
   const [commentText, setCommentText] = useState('');
   const [commentLoading, setCommentLoading] = useState(false);
-  const [error, setError] = useState(null);
 
-  const isLiked = currentUser && activity.likes.includes(currentUser.id);
+  // Local state for optimistic updates
+  const [isLiked, setIsLiked] = useState(
+    currentUser && activity.likes.includes(currentUser.id)
+  );
+  const [likesCount, setLikesCount] = useState(activity.likes.length);
+  const [comments, setComments] = useState(activity.comments);
 
   const handleToggleLike = async () => {
-    // Optimistic update de yapılabilir ama şimdilik backend'in dönmesini bekleyelim.
-    // await activityService.toggleLike(activity.id);
+    if (!currentUser) return;
+
+    // Optimistic Update
+    const previousIsLiked = isLiked;
+    const previousLikesCount = likesCount;
+
+    setIsLiked(!isLiked);
+    setLikesCount((prev) => (isLiked ? prev - 1 : prev + 1));
+
+    try {
+      await activityService.toggleLike(activity.id);
+    } catch (err) {
+      // Rollback on error
+      setIsLiked(previousIsLiked);
+      setLikesCount(previousLikesCount);
+      toast.error('Failed to update like.');
+    }
   };
 
   const handleAddComment = async (e) => {
     e.preventDefault();
-    if (!commentText.trim()) return;
+    if (!commentText.trim() || !currentUser) return;
+
     setCommentLoading(true);
-    setError(null);
     try {
-      // await activityService.addComment(activity.id, commentText);
+      const response = await activityService.addComment(
+        activity.id,
+        commentText
+      );
+      
+      // Backend might not return populated user, so we construct the UI object manually
+      // response.data.activity contains the full updated activity, but comments.user might be ID.
+      // Safe bet: Construct new comment from current user details for immediate display.
+      // We need the ID of the new comment from the response though, to allow deletion.
+      // Let's assume the last comment in the returned activity is the new one.
+      const updatedActivity = response.data.activity;
+      const newCommentFromServer = updatedActivity.comments[updatedActivity.comments.length - 1];
+
+      const newComment = {
+        _id: newCommentFromServer._id,
+        text: commentText,
+        createdAt: new Date().toISOString(),
+        user: {
+            id: currentUser.id,
+            username: currentUser.username,
+            avatarUrl: currentUser.avatarUrl
+        }
+      };
+
+      setComments((prev) => [...prev, newComment]);
       setCommentText('');
-      setShowCommentInput(false);
+      toast.success('Comment added!');
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to add comment.');
+      toast.error(err.response?.data?.message || 'Failed to add comment.');
     } finally {
       setCommentLoading(false);
     }
   };
 
+  const handleDeleteComment = async (commentId) => {
+    if (!window.confirm('Are you sure you want to delete this comment?')) return;
+
+    try {
+      await activityService.deleteComment(activity.id, commentId);
+      setComments((prev) => prev.filter((c) => c._id !== commentId));
+      toast.success('Comment deleted.');
+    } catch (err) {
+      toast.error('Failed to delete comment.');
+    }
+  };
+
   // Activity Subject Render
   const renderSubject = () => {
-    const subject = activity.subject; // Review, LibraryEntry, Follow
-    // const subjectUser = subject.user; // If it's a review or library entry
+    const subject = activity.subject;
 
     switch (activity.type) {
       case 'REVIEW_CREATED':
@@ -60,10 +117,10 @@ const ActivityCard = ({ activity }) => {
           </div>
         );
       case 'LIBRARY_ENTRY_CREATED':
-        if (!subject.list || !subject.item) return null; // Veri eksikse gösterme
+        if (!subject.list || !subject.item) return null;
         return (
           <div className="flex items-center gap-2">
-            <PlusIcon className="h-5 w-5 text-green-500" />
+            <PlusIcon className="h-5 w-5 text-green-500 shrink-0" />
             <span className="text-secondary text-sm">added</span>
             <Link
               to={`/media/${subject.itemModel.toLowerCase()}/${subject.item.detailPageId}`}
@@ -123,28 +180,25 @@ const ActivityCard = ({ activity }) => {
       {/* Activity Content */}
       <div className="mb-4">{renderSubject()}</div>
 
-      {/* Media Item Thumbnail (if applicable, but ReviewCard handles it now for reviews) */}
-      {/* Only show standalone media thumbnail for non-review activities if needed, but for now LibraryEntry text is enough */}
-
       {/* Likes and Comments */}
       <div className="flex items-center gap-4 mt-6 pt-4 border-t border-border text-secondary">
         <button
           onClick={handleToggleLike}
-          className="flex items-center gap-1 hover:text-white transition-colors"
+          className={`flex items-center gap-1 transition-colors ${isLiked ? 'text-red-500' : 'hover:text-white'}`}
         >
           {isLiked ? (
-            <HeartIconSolid className="h-5 w-5 text-red-500" />
+            <HeartIconSolid className="h-5 w-5" />
           ) : (
             <HeartIcon className="h-5 w-5" />
           )}
-          {activity.likes.length} Likes
+          {likesCount} Likes
         </button>
         <button
           onClick={() => setShowCommentInput(!showCommentInput)}
           className="flex items-center gap-1 hover:text-white transition-colors"
         >
           <ChatBubbleBottomCenterTextIcon className="h-5 w-5" />
-          {activity.comments.length} Comments
+          {comments.length} Comments
         </button>
       </div>
 
@@ -156,36 +210,39 @@ const ActivityCard = ({ activity }) => {
             value={commentText}
             onChange={(e) => setCommentText(e.target.value)}
             placeholder="Write a comment..."
-            className="grow bg-background border border-border rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-brand-500"
+            className="grow bg-background border border-border rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-brand-500 placeholder-gray-500"
           />
           <button
             type="submit"
             disabled={commentLoading || !commentText.trim()}
-            className="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+            className="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Post
+            {commentLoading ? 'Posting...' : 'Post'}
           </button>
         </form>
       )}
-      {error && <p className="text-danger text-sm mt-2">{error}</p>}
 
       {/* Comments List */}
-      {activity.comments.length > 0 && (
-        <div className="mt-4 border-t border-border pt-4">
-          {activity.comments.map((comment, index) => (
-            <div key={index} className="flex items-start gap-3 mb-3">
+      {comments.length > 0 && showCommentInput && (
+        <div className="mt-4 space-y-3">
+          {comments.map((comment) => {
+            // Check ownership: Use id as per standard
+            const isOwner = currentUser && (comment.user.id === currentUser.id);
+            
+            return (
+            <div key={comment.id} className="flex items-start gap-3 group">
               {comment.user.avatarUrl ? (
                 <img
                   src={comment.user.avatarUrl}
                   alt={comment.user.username}
-                  className="w-8 h-8 rounded-full object-cover"
+                  className="w-8 h-8 rounded-full object-cover shrink-0"
                 />
               ) : (
-                <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-white text-xs font-bold">
+                <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-white text-xs font-bold shrink-0">
                   {getInitials(comment.user.username)}
                 </div>
               )}
-              <div className="bg-background p-3 rounded-lg grow border border-border">
+              <div className="bg-background p-3 rounded-lg grow border border-border relative">
                 <div className="flex items-center justify-between">
                   <Link
                     to={`/profile/${comment.user.id}`}
@@ -193,14 +250,25 @@ const ActivityCard = ({ activity }) => {
                   >
                     @{comment.user.username}
                   </Link>
-                  <span className="text-secondary text-xs">
-                    {getRelativeTime(comment.createdAt)}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-secondary text-xs">
+                        {getRelativeTime(comment.createdAt)}
+                    </span>
+                    {isOwner && (
+                        <button 
+                            onClick={() => handleDeleteComment(comment.id)}
+                            className="text-secondary hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
+                            title="Delete comment"
+                        >
+                            <TrashIcon className="h-4 w-4" />
+                        </button>
+                    )}
+                  </div>
                 </div>
-                <p className="text-gray-300 text-sm mt-1">{comment.text}</p>
+                <p className="text-gray-300 text-sm mt-1 break-words">{comment.text}</p>
               </div>
             </div>
-          ))}
+          )})}
         </div>
       )}
     </div>

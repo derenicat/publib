@@ -3,11 +3,14 @@ import {
   getAllMovies,
   getMovie,
   searchMovies,
+  aliasTopMovies,
 } from '../controllers/movieController.js';
 
 const router = express.Router();
 
 router.route('/search').get(searchMovies);
+
+router.route('/top-5').get(aliasTopMovies, getAllMovies);
 
 router.route('/').get(getAllMovies);
 

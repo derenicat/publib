@@ -34,6 +34,11 @@ const MOVIE_GENRES = [
   'Western',
 ];
 
+// Son 100 yılı kapsayan on yıllar (2020, 2010, 2000, ...)
+const CURRENT_YEAR = new Date().getFullYear();
+const START_DECADE = Math.floor(CURRENT_YEAR / 10) * 10;
+const DECADES = Array.from({ length: 10 }, (_, i) => START_DECADE - i * 10);
+
 const DiscoveryPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -41,6 +46,8 @@ const DiscoveryPage = () => {
   const initialPage = parseInt(searchParams.get('page')) || 1;
   const initialSort = searchParams.get('sort') || '-createdAt';
   const initialGenre = searchParams.get('genre') || '';
+  const initialYear = searchParams.get('year') || '';
+  const initialDecade = searchParams.get('decade') ? parseInt(searchParams.get('decade')) : '';
 
   const [activeTab, setActiveTab] = useState(initialType);
   const [items, setItems] = useState([]);
@@ -49,6 +56,17 @@ const DiscoveryPage = () => {
   const [page, setPage] = useState(initialPage);
   const [sort, setSort] = useState(initialSort);
   const [genre, setGenre] = useState(initialGenre);
+  const [year, setYear] = useState(initialYear);
+  const [activeDecade, setActiveDecade] = useState(initialDecade);
+
+  // Eğer URL'de yıl varsa, decade state'ini otomatik ayarla (Barın görünmesi için)
+  useEffect(() => {
+    if (year) {
+      setActiveDecade(Math.floor(year / 10) * 10);
+    } else if (!activeDecade && initialDecade) {
+        setActiveDecade(initialDecade);
+    }
+  }, [year, initialDecade]);
 
   useEffect(() => {
     const fetchItems = async () => {
@@ -62,13 +80,36 @@ const DiscoveryPage = () => {
           limit: 20,
         };
 
-        // Genre filtresi (Sadece Movie için veya Book kategorileri uyumluysa)
-        if (genre && activeTab === 'movie') {
-          params.genres = genre; // APIFeatures ?genres=Action
+        // Genre filtresi
+        if (genre) {
+            if (activeTab === 'movie') {
+                params.genres = genre;
+            } else if (activeTab === 'book') {
+                params.categories = genre;
+            }
         }
-        // Book kategorileri için ?categories=...
-        if (genre && activeTab === 'book') {
-          params.categories = genre;
+        
+        // Tarih Filtreleme Mantığı (Letterboxd Style)
+        let startDate, endDate;
+
+        if (year) {
+            // 1. Spesifik Yıl Seçiliyse (Örn: 2014)
+            startDate = `${year}-01-01`;
+            endDate = `${year}-12-31`;
+        } else if (activeDecade) {
+            // 2. Sadece On Yıl Seçiliyse (Örn: 2010s -> 2010-2019)
+            startDate = `${activeDecade}-01-01`;
+            endDate = `${activeDecade + 9}-12-31`;
+        }
+
+        if (startDate && endDate) {
+            if (activeTab === 'book') {
+                params['publishedDate[gte]'] = startDate;
+                params['publishedDate[lte]'] = endDate;
+            } else if (activeTab === 'movie') {
+                params['releaseDate[gte]'] = startDate;
+                params['releaseDate[lte]'] = endDate;
+            }
         }
 
         if (activeTab === 'book') {
@@ -80,91 +121,162 @@ const DiscoveryPage = () => {
           response = await movieService.getMovies(params);
           if (response.data && response.data.movies) {
             setItems(response.data.movies);
+          } else {
+            setItems([]);
           }
         }
       } catch (err) {
         console.error('Discovery failed:', err);
         setError('Failed to load content.');
+        setItems([]);
       } finally {
         setLoading(false);
       }
     };
 
     // URL'i güncelle
-    const params = { type: activeTab, page, sort };
-    if (genre) params.genre = genre;
-    setSearchParams(params);
+    const currentParams = {};
+    if (activeTab) currentParams.type = activeTab;
+    if (page > 1) currentParams.page = page;
+    if (sort !== '-createdAt') currentParams.sort = sort;
+    if (genre) currentParams.genre = genre;
+    if (year) currentParams.year = year;
+    if (activeDecade && !year) currentParams.decade = activeDecade; // Yıl seçili değilse decade'i tut
+    
+    setSearchParams(currentParams);
 
     fetchItems();
-  }, [activeTab, page, sort, genre, setSearchParams]);
+  }, [activeTab, page, sort, genre, year, activeDecade, setSearchParams]);
 
   const handleTabChange = (type) => {
     setActiveTab(type);
     setPage(1);
-    setGenre(''); // Tür değişince genre filtresini sıfırla
+    setGenre('');
+    setYear('');
+    setActiveDecade('');
+  };
+
+  const handleDecadeChange = (e) => {
+    const val = e.target.value ? parseInt(e.target.value) : '';
+    setActiveDecade(val);
+    setYear(''); // Dönem değişince spesifik yılı sıfırla
+    setPage(1);
+  };
+
+  const handleYearSelect = (selectedYear) => {
+    setYear(selectedYear === year ? '' : selectedYear); // Tekrar tıklanırsa seçimi kaldır
+    setPage(1);
   };
 
   return (
     <div className="max-w-6xl mx-auto">
       <h1 className="text-3xl font-bold text-white mb-6">Discover</h1>
 
-      {/* Controls */}
-      <div className="bg-surface p-6 rounded-2xl border border-border shadow-sm mb-8">
-        {/* Tabs */}
-        <div className="flex space-x-4 mb-6 border-b border-border">
-          <button
-            onClick={() => handleTabChange('movie')}
-            className={`pb-2 px-4 text-sm font-medium transition-colors border-b-2 ${
-              activeTab === 'movie'
-                ? 'border-brand-500 text-brand-500'
-                : 'border-transparent text-secondary hover:text-white'
-            }`}
-          >
-            Movies
-          </button>
-          <button
-            onClick={() => handleTabChange('book')}
-            className={`pb-2 px-4 text-sm font-medium transition-colors border-b-2 ${
-              activeTab === 'book'
-                ? 'border-brand-500 text-brand-500'
-                : 'border-transparent text-secondary hover:text-white'
-            }`}
-          >
-            Books
-          </button>
-        </div>
-
-        {/* Filters */}
-        <div className="flex flex-wrap gap-4">
-          {/* Sort */}
-          <select
-            value={sort}
-            onChange={(e) => setSort(e.target.value)}
-            className="bg-background border border-border rounded-lg px-4 py-2 text-white focus:outline-none focus:border-brand-500"
-          >
-            {SORT_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
-
-          {/* Genre (Only for Movies for now, or shared list) */}
-          {activeTab === 'movie' && (
-            <select
-              value={genre}
-              onChange={(e) => setGenre(e.target.value)}
-              className="bg-background border border-border rounded-lg px-4 py-2 text-white focus:outline-none focus:border-brand-500"
+      {/* Controls Container */}
+      <div className="bg-surface rounded-2xl border border-border shadow-sm mb-8 overflow-hidden">
+        <div className="p-6">
+            {/* Tabs */}
+            <div className="flex space-x-4 mb-6 border-b border-border">
+            <button
+                onClick={() => handleTabChange('movie')}
+                className={`pb-2 px-4 text-sm font-medium transition-colors border-b-2 ${
+                activeTab === 'movie'
+                    ? 'border-brand-500 text-brand-500'
+                    : 'border-transparent text-secondary hover:text-white'
+                }`}
             >
-              <option value="">All Genres</option>
-              {MOVIE_GENRES.map((g) => (
-                <option key={g} value={g}>
-                  {g}
+                Movies
+            </button>
+            <button
+                onClick={() => handleTabChange('book')}
+                className={`pb-2 px-4 text-sm font-medium transition-colors border-b-2 ${
+                activeTab === 'book'
+                    ? 'border-brand-500 text-brand-500'
+                    : 'border-transparent text-secondary hover:text-white'
+                }`}
+            >
+                Books
+            </button>
+            </div>
+
+            {/* Main Filters */}
+            <div className="flex flex-wrap gap-4">
+            {/* Sort */}
+            <select
+                value={sort}
+                onChange={(e) => setSort(e.target.value)}
+                className="bg-background border border-border rounded-lg px-4 py-2 text-white focus:outline-none focus:border-brand-500"
+            >
+                {SORT_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                    {opt.label}
                 </option>
-              ))}
+                ))}
             </select>
-          )}
+
+            {/* Genre */}
+            {activeTab === 'movie' && (
+                <select
+                value={genre}
+                onChange={(e) => setGenre(e.target.value)}
+                className="bg-background border border-border rounded-lg px-4 py-2 text-white focus:outline-none focus:border-brand-500"
+                >
+                <option value="">All Genres</option>
+                {MOVIE_GENRES.map((g) => (
+                    <option key={g} value={g}>
+                    {g}
+                    </option>
+                ))}
+                </select>
+            )}
+
+            {/* Decade Filter */}
+            <select
+                value={activeDecade}
+                onChange={handleDecadeChange}
+                className="bg-background border border-border rounded-lg px-4 py-2 text-white focus:outline-none focus:border-brand-500"
+            >
+                <option value="">All Decades</option>
+                {DECADES.map((d) => (
+                <option key={d} value={d}>
+                    {d}s
+                </option>
+                ))}
+            </select>
+            </div>
         </div>
+
+        {/* Horizontal Year Bar (Letterboxd Style) */}
+        {activeDecade && (
+            <div className="bg-surface-accent/50 border-t border-border px-6 py-3 overflow-x-auto">
+                <div className="flex items-center gap-2">
+                    <button
+                        onClick={() => setYear('')}
+                        className={`px-3 py-1 rounded-full text-xs font-medium transition-colors shrink-0 ${
+                            !year 
+                            ? 'bg-brand-600 text-white' 
+                            : 'bg-surface border border-border text-secondary hover:text-white hover:border-brand-500'
+                        }`}
+                    >
+                        All {activeDecade}s
+                    </button>
+                    <div className="w-px h-4 bg-border mx-2 shrink-0"></div>
+                    {Array.from({ length: 10 }, (_, i) => activeDecade + i).map((y) => (
+                         <button
+                            key={y}
+                            onClick={() => handleYearSelect(y.toString())}
+                            className={`px-3 py-1 rounded-full text-xs font-medium transition-colors shrink-0 ${
+                                year === y.toString()
+                                ? 'bg-brand-600 text-white'
+                                : 'bg-surface border border-border text-secondary hover:text-white hover:border-brand-500'
+                            }`}
+                         >
+                            {y}
+                         </button>
+                    ))}
+                </div>
+            </div>
+        )}
       </div>
 
       {/* Grid */}
@@ -186,7 +298,7 @@ const DiscoveryPage = () => {
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
           {items.map((item) => {
-            const id = item.detailPageId || item.id || item._id; // Yerel DB'den geldiği için detailPageId veya _id olmalı
+            const id = item.detailPageId || item.id || item._id; 
             const title = item.title;
             const image =
               activeTab === 'book'

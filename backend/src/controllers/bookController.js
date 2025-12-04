@@ -5,6 +5,13 @@ import {
 } from '../services/bookService.js';
 import catchAsync from '../utils/catchAsync.js';
 
+export const aliasTopBooks = (req, res, next) => {
+  req.query.limit = '5';
+  req.query.sort = '-averageRating,-ratingsCount';
+  req.query.fields = 'title,coverImage,averageRating,publishedDate,detailPageId,authors';
+  next();
+};
+
 export const getAllBooks = catchAsync(async (req, res, next) => {
   // "Discover" akışı: Sadece yerel veritabanımızdaki mevcut kitapları listeler.
   const books = await serviceGetAllBooks(req.query);

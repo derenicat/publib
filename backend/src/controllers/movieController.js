@@ -1,6 +1,13 @@
 import catchAsync from '../utils/catchAsync.js';
 import * as movieService from '../services/movieService.js';
 
+export const aliasTopMovies = (req, res, next) => {
+  req.query.limit = '5';
+  req.query.sort = '-averageRating,-ratingsCount';
+  req.query.fields = 'title,posterPath,averageRating,releaseDate,detailPageId';
+  next();
+};
+
 export const getAllMovies = catchAsync(async (req, res, next) => {
   // "Discover" akışı: Sadece yerel veritabanımızdaki mevcut filmleri listeler.
   console.log('getAllMovies controller called');

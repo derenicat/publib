@@ -1,0 +1,20 @@
+feat: Frontend Polishing, Cleanup, and Backend ID Standardization
+
+Bu commit, projenin genel kod kalitesini artırmaya ve Frontend ile Backend arasındaki tutarlılığı sağlamaya odaklanmıştır.
+
+Yapılan başlıca değişiklikler:
+
+- **Backend ID Standardizasyonu:** `User` ve `UserList` modellerindeki `toJSON` dönüşümleri `detailPageId` yerine standart `id` döndürecek şekilde güncellendi.
+- **Frontend Modülerleşme ve Temizlik:**
+    - `MediaDetailPage` komponenti `MediaHeader` adlı yeni bir alt komponente ayrıldı.
+    - `getInitials`, `formatDate`, `getRelativeTime` gibi ortak fonksiyonlar `utils/helpers.js` altında merkezileştirildi (DRY prensibi).
+    - `ActivityCard` içindeki kullanılmayan `onActivityUpdate` prop'u kaldırıldı.
+    - Tailwind CSS sınıfları v4 standardına uygun olarak güncellendi (`flex-shrink-0` -> `shrink-0`, `bg-gradient-to-*` -> `bg-linear-to-*`).
+- **React Hook Optimizasyonu:**
+    - `ProfileHeader` ve `SearchPage` komponentlerindeki `useEffect` bağımlılıkları optimize edildi. Özellikle `ProfileHeader`'daki `cascading renders` ve `missing dependency` uyarıları giderildi, böylece gereksiz render döngüleri ve performans sorunları önlendi.
+    - `DiscoveryPage` ve `SearchPage`'deki `useEffect` bağımlılıkları primitive değerlere bağlanarak sonsuz döngü riskleri giderildi.
+- **UX İyileştirmeleri:**
+    - `ProfileHeader`'daki "Follow" butonu etkileşimli hale getirildi, optimistic UI güncellemeleri ve kendi profilimizdeki "followingCount" güncellemesi sağlandı.
+    - `isOwnProfile` kontrolü daha sağlam hale getirildi.
+- **Gürültü Azaltma (Feed):** Backend'de `FOLLOW_CREATED` aktivite kaydı oluşturma mantığı kaldırıldı. Bu, Frontend'deki feed'in daha alakalı ve içerik odaklı olmasını sağlar ve `ActivityCard` içindeki `null` hatasını giderir.
+- **Dokümantasyon:** Yapılan tüm değişiklikleri yansıtan yeni dokümantasyon dosyaları oluşturuldu veya mevcutlar güncellendi.
