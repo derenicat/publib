@@ -12,7 +12,7 @@ export const findById = async (id) => {
       populate: {
         path: 'item',
         select:
-          'title posterPath releaseDate backdropPath authors tmdbId googleBooksId',
+          'title posterPath coverImage releaseDate publishedDate backdropPath authors tmdbId googleBooksId _id',
       },
     })
     .populate('user', 'username email role');
