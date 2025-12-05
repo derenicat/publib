@@ -19,6 +19,7 @@ const requiredEnvVars = [
   'GOOGLE_BOOKS_API_URL',
   'TMDB_API_KEY',
   'TMDB_API_URL',
+  'FRONTEND_URL',
 ];
 
 // Gerekli tüm ortam değişkenlerinin mevcut olup olmadığını kontrol et
@@ -45,6 +46,7 @@ const config = {
   GOOGLE_BOOKS_API_URL: process.env.GOOGLE_BOOKS_API_URL,
   TMDB_API_KEY: process.env.TMDB_API_KEY,
   TMDB_API_URL: process.env.TMDB_API_URL,
+  FRONTEND_URL: process.env.FRONTEND_URL,
 };
 
 export default config;

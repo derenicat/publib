@@ -21,17 +21,19 @@ import AppError from './src/utils/appError.js';
 const app = express();
 
 // CORS Configuration
-app.use(cors({
-  origin: 'http://localhost:5173', // Frontend URL
-  credentials: true, // Allow cookies
-}));
+app.use(
+  cors({
+    origin: 'http://localhost:5173', // Frontend URL
+    credentials: true, // Allow cookies
+  })
+);
 
 // Temel Ara Yazılımlar
 app.use(helmet()); // Güvenlik HTTP başlıklarını ayarlar
 
 // Kaba kuvvet saldırılarını önlemek için hız sınırlaması
 const limiter = rateLimit({
-  max: 1000, // IP başına maksimum istek (Geliştirme için artırıldı)
+  max: 35000, // IP başına maksimum istek (Geliştirme için artırıldı)
   windowMs: 60 * 60 * 1000, // Saat başına
   message: 'Too many requests from this IP, please try again in an hour.',
 });

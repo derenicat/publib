@@ -1,43 +1,44 @@
 import { useState, useEffect } from 'react';
 import Modal from '../common/Modal';
 import reviewService from '../../services/reviewService';
-import toast from 'react-hot-toast'; // Import toast
+import toast from 'react-hot-toast';
+import { StarIcon as StarIconSolid } from '@heroicons/react/24/solid';
+import { StarIcon as StarIconOutline } from '@heroicons/react/24/outline';
 
-const ReviewFormModal = ({ isOpen, onClose, onSuccess, initialData = null, item, itemModel }) => {
+const ReviewFormModal = ({ isOpen, onClose, onSuccess, initialData = null, item, itemModel, existingRating, existingReview }) => {
   const isEditMode = !!initialData;
-  const [rating, setRating] = useState(initialData?.rating || 10); // 1-10 arası
+  const [rating, setRating] = useState(initialData?.rating || existingRating || 10); 
+  const [hoverRating, setHoverRating] = useState(0);
   const [reviewText, setReviewText] = useState(initialData?.text || '');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (initialData) {
-      setRating(initialData.rating);
-      setReviewText(initialData.text);
-    } else {
-      setRating(10);
-      setReviewText('');
+    if (isOpen) {
+        if (initialData) {
+            setRating(initialData.rating);
+            setReviewText(initialData.text);
+        } else if (existingRating) {
+            setRating(existingRating);
+            setReviewText('');
+        } else {
+            setRating(10);
+            setReviewText('');
+        }
+        setError(null);
+        setHoverRating(0);
     }
-    setError(null); // Modal açıldığında hataları temizle
-  }, [initialData, isOpen]);
+  }, [initialData, existingRating, isOpen]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
 
-    console.log('[DEBUG-FRONTEND] Full Item Object:', item);
-
     // Backend'den gelen objede id/id yerine detailPageId olabilir
     // Öncelik sırası: detailPageId > _id > id > external IDs
     const itemId = item.detailPageId || item._id || item.id || item.googleBooksId || item.tmdbId;
     
-    console.log('[DEBUG-FRONTEND] Selected Item ID:', itemId);
-
-    if (!itemId || itemId.length < 10) {
-        console.warn('[DEBUG-FRONTEND] Warning: Selected ID seems to be an external ID, not a MongoDB ObjectId.');
-    }
-
     const reviewPayload = {
       rating,
       text: reviewText,
@@ -47,12 +48,19 @@ const ReviewFormModal = ({ isOpen, onClose, onSuccess, initialData = null, item,
 
     try {
       if (isEditMode) {
+        // Klasik Edit Modu (Var olan metinli yorumu düzenleme)
         await reviewService.updateReview(initialData.id || initialData._id, { rating, text: reviewText });
         toast.success('Review updated successfully!');
+      } else if (existingReview) {
+        // Upsert Modu (Sadece puanı olan kaydı güncelleme)
+        await reviewService.updateReview(existingReview.id || existingReview._id, { rating, text: reviewText });
+        toast.success('Review submitted successfully!');
       } else {
+        // Yeni Yorum Oluşturma
         await reviewService.createReview(reviewPayload);
         toast.success('Review submitted successfully!');
       }
+      
       onSuccess(isEditMode ? 'Review updated successfully!' : 'Review submitted successfully!');
       onClose();
     } catch (err) {
@@ -71,21 +79,34 @@ const ReviewFormModal = ({ isOpen, onClose, onSuccess, initialData = null, item,
           </div>
         )}
 
-        {/* Rating Selection */}
+        {/* Rating Selection (Stars) */}
         <div>
-          <label htmlFor="rating" className="block text-sm font-medium text-gray-300 mb-1">
-            Rating (1-10)
+          <label className="block text-sm font-medium text-gray-300 mb-2">
+            Rating
           </label>
-          <input
-            type="number"
-            id="rating"
-            min="1"
-            max="10"
-            required
-            value={rating}
-            onChange={(e) => setRating(parseInt(e.target.value))}
-            className="w-full bg-background border border-border rounded-lg px-4 py-2 text-white focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-colors"
-          />
+          <div className="flex items-center gap-1" onMouseLeave={() => setHoverRating(0)}>
+            {[...Array(10)].map((_, index) => {
+                const starValue = index + 1;
+                const isFilled = starValue <= (hoverRating || rating);
+                
+                return (
+                    <button
+                        type="button"
+                        key={starValue}
+                        onClick={() => setRating(starValue)}
+                        onMouseEnter={() => setHoverRating(starValue)}
+                        className="focus:outline-none transition-transform hover:scale-110"
+                    >
+                        {isFilled ? (
+                            <StarIconSolid className="h-8 w-8 text-yellow-500" />
+                        ) : (
+                            <StarIconOutline className="h-8 w-8 text-gray-500 hover:text-yellow-400" />
+                        )}
+                    </button>
+                );
+            })}
+            <span className="ml-3 text-lg font-bold text-white">{hoverRating || rating}/10</span>
+          </div>
         </div>
 
         {/* Review Text */}

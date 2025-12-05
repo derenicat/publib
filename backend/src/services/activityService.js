@@ -14,6 +14,8 @@ const getCommonPopulateOptions = () => [
       // Follower ve Following de User referansı olduğu için _id'yi seçiyoruz.
       { path: 'follower', select: 'username avatarUrl _id', strictPopulate: false },
       { path: 'following', select: 'username avatarUrl _id', strictPopulate: false },
+      // Review için User referansını populate et
+      { path: 'user', select: 'username avatarUrl _id', strictPopulate: false },
     ],
   },
 ];

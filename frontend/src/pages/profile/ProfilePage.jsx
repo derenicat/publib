@@ -101,7 +101,14 @@ const ProfilePage = () => {
             setHasMore(false);
           }
         } else if (activeTab === 'reviews') {
-          const response = await reviewService.getUserReviews(userId, { page, limit });
+          let response;
+          // Kendi profilimiz mi?
+          if (!id || (currentUser && id === currentUser.id)) {
+             response = await reviewService.getMyReviews({ page, limit });
+          } else {
+             response = await reviewService.getUserReviews(userId, { page, limit });
+          }
+          
           console.log('[DEBUG] Reviews API Response:', response); // DEBUG LOG
           if (response.data && response.data.reviews) {
             const newItems = response.data.reviews;

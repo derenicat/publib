@@ -76,7 +76,7 @@ export const getAllReviews = async (queryParams) => {
   // Bu servis artık yorumları sorgu parametrelerine göre filtreleyebilir.
   // Bağlam için her zaman kullanıcı ve öğe bilgilerini dolduracağız.
   const populateOptions = [
-    { path: 'user', select: 'username avatarUrl detailPageId' },
+    { path: 'user', select: 'username avatarUrl _id' }, // Changed detailPageId to _id
     { path: 'item', select: 'title posterPath detailPageId' },
   ];
 
@@ -86,7 +86,7 @@ export const getAllReviews = async (queryParams) => {
 
 export const getReviewById = async (reviewId) => {
   const populateOptions = [
-    { path: 'user', select: 'username avatarUrl detailPageId' },
+    { path: 'user', select: 'username avatarUrl _id' }, // Changed detailPageId to _id
     { path: 'item', select: 'title posterPath detailPageId' },
   ];
   const review = await reviewRepository.findById(reviewId, populateOptions);

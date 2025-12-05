@@ -4,7 +4,8 @@ import AppError from '../utils/appError.js';
 import sendEmail from '../utils/email.js';
 import crypto from 'crypto';
 import TokenBlacklist from '../models/tokenBlacklistModel.js';
-import { createDefaultList } from './userListService.js'; // Import createDefaultList
+import { createDefaultList } from './userListService.js';
+import config from '../config/env.js'; // Import config
 
 export const register = async (username, email, password, passwordConfirm) => {
   const existingUser = await userRepository.findByEmail(email);
@@ -65,7 +66,7 @@ export const forgotPassword = async (email) => {
   try {
     // Şifre sıfırlama linki oluşturulur ve kullanıcıya e-posta ile gönderilir.
     // Token'ın sızma riskini azaltmak için, gönderilen token veritabanında hashlenmiş haliyle saklanır.
-    const resetURL = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/reset-password/${resetToken}`;
+    const resetURL = `${config.FRONTEND_URL}/reset-password/${resetToken}`;
     const message = `To reset your password, please click the following link: ${resetURL}\n\nThis link is valid for 10 minutes. If you did not request this, please ignore this email.`;
 
     await sendEmail({

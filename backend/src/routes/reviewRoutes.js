@@ -5,6 +5,7 @@ import {
   getReview,
   updateReview,
   deleteReview,
+  getMyReviews,
 } from '../controllers/reviewController.js';
 import { protect } from '../middlewares/authMiddleware.js';
 import {
@@ -14,6 +15,9 @@ import {
 
 // Bu artık üst düzey bir yönlendiricidir
 const router = express.Router();
+
+// GET /api/reviews/me - Giriş yapmış kullanıcının yorumlarını getir
+router.get('/me', protect, getMyReviews, getAllReviews);
 
 // GET /api/reviews - Tüm yorumları getir (sorgu parametreleri ile filtrelenebilir)
 // POST /api/reviews - Yeni bir yorum oluştur

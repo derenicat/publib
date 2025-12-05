@@ -1,257 +1,262 @@
-import fs from 'fs';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import fs from 'fs';
+import path from 'path';
 import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
 
-// --- Import all models and services ---
-import {
-  User,
-  Book,
-  Movie,
-  UserList,
-  LibraryEntry,
-  Review,
-  Follow,
-  Activity,
-} from '../src/models/index.js';
+// Modelleri yükle
+import { User, Book, Movie, UserList, LibraryEntry, Review, Follow, Activity } from '../src/models/index.js';
+import { createDefaultList } from '../src/services/userListService.js';
 
-import {
-  ensureBookExists,
-  searchBooks as searchGoogleBooks,
-} from '../src/services/bookService.js';
-import {
-  ensureMovieExists,
-  searchMovies as searchTMDb,
-} from '../src/services/movieService.js';
-import { createCustomList } from '../src/services/userListService.js';
-import * as libraryEntryService from '../src/services/libraryEntryService.js';
-import * as reviewService from '../src/services/reviewService.js';
-import * as followService from '../src/services/followService.js';
-import * as authService from '../src/services/authService.js'; // Register uses createDefaultList automatically
+// Ortam değişkenlerini yükle
+dotenv.config({ path: './.env' });
 
-// --- Basic Setup ---
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-dotenv.config({ path: join(__dirname, '..', '.env') });
-const DB = process.env.DATABASE_URL.replace(
-  '<PASSWORD>',
-  process.env.DATABASE_PASSWORD
-);
+const __dirname = path.dirname(__filename);
 
-// --- Helper Functions ---
-const getRandomItems = (arr, n) => {
-  const shuffled = arr.sort(() => 0.5 - Math.random());
-  return shuffled.slice(0, n);
-};
-
-// --- Main Script ---
-const connectToDB = async () => {
+// MongoDB Bağlantısı
+const connectDB = async () => {
   try {
-    await mongoose.connect(DB, {
-      serverSelectionTimeoutMS: 30000, // Increase timeout to 30s
-      socketTimeoutMS: 45000,
-    });
-    console.log('DB connection successful!');
+    await mongoose.connect(process.env.DATABASE_URL.replace('<PASSWORD>', process.env.DATABASE_PASSWORD));
+    console.log('DB Connected!');
   } catch (err) {
     console.error('DB Connection Error:', err);
     process.exit(1);
   }
 };
 
-// --- Read Dummy Data ---
-const usersJSON = JSON.parse(
-  fs.readFileSync(join(__dirname, 'data', 'users.json'), 'utf-8')
-);
+// Rastgele Yardımcılar
+const getRandomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+const getRandomItem = (arr) => arr[Math.floor(Math.random() * arr.length)];
+const getRandomSubset = (arr, count) => {
+    const shuffled = arr.sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, count);
+};
+// Diziden rastgele öğeler seçip çıkaran yardımcı fonksiyon (Duplicate önlemek için)
+const spliceRandomSubset = (arr, count) => {
+    const selected = [];
+    for (let i = 0; i < count; i++) {
+        if (arr.length === 0) break;
+        const randomIndex = Math.floor(Math.random() * arr.length);
+        selected.push(arr[randomIndex]);
+        arr.splice(randomIndex, 1); // Seçilen öğeyi diziden çıkar
+    }
+    return selected;
+};
 
-// --- DELETE ALL EXISTING DATA ---
+// Yorum Metinleri
+const positiveReviews = [
+    "Absolutely loved it! A masterpiece.",
+    "Highly recommended. Great storytelling.",
+    "One of the best I've seen/read in years.",
+    "Incredible characters and plot twists.",
+    "A true gem. Don't miss it."
+];
+const neutralReviews = [
+    "It was okay, nothing special.",
+    "Good concepts but execution was lacking.",
+    "Average experience. Had its moments.",
+    "Decent, but I expected more.",
+    "Not bad, but wouldn't watch/read again."
+];
+const negativeReviews = [
+    "Terrible. Waste of time.",
+    "Boring and predictable.",
+    "Poorly written/directed.",
+    "I couldn't even finish it.",
+    "Disappointing on every level."
+];
+
+const getReviewText = (rating) => {
+    if (rating >= 8) return getRandomItem(positiveReviews);
+    if (rating >= 5) return getRandomItem(neutralReviews);
+    return getRandomItem(negativeReviews);
+};
+
+// Liste İsimleri
+const listNames = [
+    "Favorites", "Must See/Read", "Weekend Vibes", "Classics", "Hidden Gems",
+    "Mind Benders", "Feel Good", "Dark & Gritty", "Summer Collection", "Award Winners"
+];
+const listDescriptions = [
+    "A collection of my absolute favorites.",
+    "Things you really need to check out.",
+    "Perfect for a relaxing weekend.",
+    "Timeless masterpieces.",
+    "Underrated stuff that deserves more love."
+];
+
+// Verileri Sil (Users ve İlişkili Veriler - Book/Movie KALSIN)
 const deleteData = async () => {
-  await connectToDB();
+  console.log('😢 Deleting data (Users, Lists, Reviews, Follows, Activities)...');
+  await User.deleteMany();
+  await UserList.deleteMany();
+  await LibraryEntry.deleteMany();
+  await Review.deleteMany();
+  await Follow.deleteMany();
+  await Activity.deleteMany();
+  // NOT: Book ve Movie silinmiyor!
+  console.log('Data successfully deleted!');
+
   try {
-    console.log('Deleting all data...');
-    // Order matters slightly for referencing, but deleteMany is generally safe
-    await Activity.deleteMany();
-    await Follow.deleteMany();
-    await Review.deleteMany();
-    await LibraryEntry.deleteMany();
-    await UserList.deleteMany();
-    await Movie.deleteMany();
-    await Book.deleteMany();
-    await User.deleteMany();
-    console.log('All data successfully deleted!');
-  } catch (err) {
-    console.error('Error deleting data:', err);
+    await UserList.collection.dropIndex('user_1_name_1');
+    console.log('✅ Dropped old index: user_1_name_1');
+  } catch (e) {
+    console.log('ℹ️ Index user_1_name_1 not found or already dropped.');
   }
-  process.exit();
+  
+  await UserList.collection.dropIndexes();
 };
 
-// --- IMPORT DUMMY DATA ---
+// Verileri İçe Aktar (Full Simülasyon)
 const importData = async () => {
-  await connectToDB();
   try {
-    // 1. Create Users (Admin + Regulars)
-    console.log('Creating users...');
-    // We use authService.register to trigger automatic default list creation
-    const createdUsers = [];
-    for (const userData of usersJSON) {
-      // Note: We bypass the service here to avoid "email in use" if re-running without delete,
-      // but for a clean seed script, we should use the service logic or replicate it.
-      // However, `authService.register` returns an object without the ID sometimes depending on implementation.
-      // Let's use User.create directly but MANUALLY call createDefaultList to be safe and fast,
-      // OR just use the repository/service if we want the side effects.
-      // Let's use `authService.register` logic manually here to ensure we have the user documents.
+    // Önce eski verileri ve indexleri temizle
+    await deleteData();
 
-      // Create User
-      const newUser = await User.create(userData);
-      // Create Default Lists (Logic from authService)
-      const { createDefaultList } = await import(
-        '../src/services/userListService.js'
-      );
-      await createDefaultList(newUser.id);
-
-      createdUsers.push(newUser);
+    // 1. Kullanıcıları Ekle
+    const usersJson = JSON.parse(fs.readFileSync(path.join(__dirname, 'data/users.json'), 'utf-8'));
+    console.log(`Creating ${usersJson.length} users...`);
+    
+    const users = [];
+    for (const userData of usersJson) {
+        const user = await User.create(userData); // Password hashing middleware çalışır
+        await createDefaultList(user._id); // Default listeleri oluştur
+        users.push(user);
     }
-    console.log(`Created ${createdUsers.length} users with default lists.`);
+    console.log('✅ Users created.');
 
-    // 2. Search and seed BOOKS
-    console.log('Seeding Books (Dune, LOTR, Harry Potter)...');
-    const bookQueries = ['dune', 'lord of the rings', 'harry potter'];
-    let allSeededBooks = [];
-
-    for (const q of bookQueries) {
-      const results = await searchGoogleBooks({ q, limit: 5 });
-      for (const book of results) {
-        // ensureBookExists returns the DB document
-        const localBook = await ensureBookExists(book.googleBooksId);
-        allSeededBooks.push(localBook);
-      }
-    }
-    // Remove duplicates if any
-    allSeededBooks = [
-      ...new Map(allSeededBooks.map((item) => [item['id'], item])).values(),
-    ];
-    console.log(`Seeded ${allSeededBooks.length} unique books.`);
-
-    // 3. Search and seed MOVIES
-    console.log('Seeding Movies (Dune, LOTR, Harry Potter)...');
-    const movieQueries = ['dune', 'lord of the rings', 'harry potter'];
-    let allSeededMovies = [];
-
-    for (const q of movieQueries) {
-      const results = await searchTMDb({ q });
-      // Results contains { results: [], ... }
-      const topMovies = results.results.slice(0, 5);
-      for (const movie of topMovies) {
-        const localMovie = await ensureMovieExists(movie.tmdbId);
-        allSeededMovies.push(localMovie);
-      }
-    }
-    allSeededMovies = [
-      ...new Map(allSeededMovies.map((item) => [item['id'], item])).values(),
-    ];
-    console.log(`Seeded ${allSeededMovies.length} unique movies.`);
-
-    // 4. Simulate User Activity
-    console.log('Simulating user activity...');
-
-    const regularUsers = createdUsers.filter((u) => u.role !== 'admin');
-
-    for (const user of regularUsers) {
-      console.log(`Processing user: ${user.username}...`);
-
-      // A. Follow 2 Random Users
-      // Get potential targets (everyone except self)
-      const potentialTargets = createdUsers.filter((u) => u.id !== user.id);
-      const targets = getRandomItems(potentialTargets, 2);
-
-      for (const target of targets) {
-        await followService.followUser(user.id, target.id);
-      }
-
-      // B. Create Custom Lists
-      const customBookList = await createCustomList({
-        userId: user.id,
-        name: `${user.username}'s Fav Books`,
-        description: 'Hand-picked favorites.',
-        isPublic: true,
-        type: 'Book',
-      });
-
-      const customMovieList = await createCustomList({
-        userId: user.id,
-        name: `${user.username}'s Movie Night`,
-        description: 'Great for weekends.',
-        isPublic: true,
-        type: 'Movie',
-      });
-
-      // C. Activity: BOOKS
-      // Pick 5 random books to review
-      const booksToReview = getRandomItems(allSeededBooks, 5);
-
-      // Pick 2 of them to add to the custom list
-      const booksForCustomList = booksToReview.slice(0, 2);
-
-      for (const book of booksToReview) {
-        // Review (Auto-adds to default list "My Books")
-        await reviewService.createReview({
-          userId: user.id,
-          item: book.id,
-          itemModel: 'Book',
-          rating: Math.floor(Math.random() * 5) + 6, // Random rating 6-10
-          text: `Review for ${book.title}. Automatically generated.`,
-        });
-      }
-
-      for (const book of booksForCustomList) {
-        await libraryEntryService.addToList({
-          userId: user.id,
-          item: book.id,
-          itemModel: 'Book',
-          list: customBookList.id,
-          status: 'READ',
-        });
-      }
-
-      // D. Activity: MOVIES
-      // Pick 5 random movies to review
-      const moviesToReview = getRandomItems(allSeededMovies, 5);
-
-      // Pick 2 of them to add to the custom list
-      const moviesForCustomList = moviesToReview.slice(0, 2);
-
-      for (const movie of moviesToReview) {
-        // Review (Auto-adds to default list "My Movies")
-        await reviewService.createReview({
-          userId: user.id,
-          item: movie.id,
-          itemModel: 'Movie',
-          rating: Math.floor(Math.random() * 5) + 6, // Random rating 6-10
-          text: `Review for ${movie.title}. Automatically generated.`,
-        });
-      }
-
-      for (const movie of moviesForCustomList) {
-        await libraryEntryService.addToList({
-          userId: user.id,
-          item: movie.id,
-          itemModel: 'Movie',
-          list: customMovieList.id,
-          status: 'WATCHED',
-        });
-      }
+    // Kitap ve Filmleri Çek (DB'den)
+    const allBooks = await Book.find().select('_id title');
+    const allMovies = await Movie.find().select('_id title');
+    
+    if (allBooks.length === 0 || allMovies.length === 0) {
+        console.error('❌ Error: No books or movies found in DB. Please run fetch scripts first.');
+        process.exit(1);
     }
 
-    console.log('--------------------------');
-    console.log('Dummy data successfully loaded with complex interactions!');
+    // Her Kullanıcı İçin İşlemler
+    for (const user of users) {
+        console.log(`Processing user: ${user.username}...`);
+
+        // Kullanıcı için havuz kopyaları oluştur (Duplicate önlemek için)
+        const userAvailableBooks = [...allBooks];
+        const userAvailableMovies = [...allMovies];
+
+        // 2. Takip Et (1-40 arası)
+        const otherUsers = users.filter(u => u._id.toString() !== user._id.toString());
+        const usersToFollow = getRandomSubset(otherUsers, getRandomInt(1, 40));
+        
+        const followPromises = usersToFollow.map(targetUser => 
+            Follow.create({ follower: user._id, following: targetUser._id })
+        );
+        await Promise.all(followPromises);
+
+        // 3. Özel Listeler Oluştur (1 Book, 1 Movie)
+        const bookListName = `${user.username}'s ${getRandomItem(listNames)}`;
+        const movieListName = `${user.username}'s ${getRandomItem(listNames)}`;
+        
+        const customBookList = await UserList.create({
+            user: user._id,
+            name: bookListName,
+            description: getRandomItem(listDescriptions),
+            type: 'Book',
+            isPublic: true
+        });
+        
+        const customMovieList = await UserList.create({
+            user: user._id,
+            name: movieListName,
+            description: getRandomItem(listDescriptions),
+            type: 'Movie',
+            isPublic: true
+        });
+
+        // Varsayılan Listeleri Bul
+        const myBooksList = await UserList.findOne({ user: user._id, name: 'My Books' });
+        const myMoviesList = await UserList.findOne({ user: user._id, name: 'My Movies' });
+
+        // Helper: Rastgele LibraryEntry ve Activity Oluştur
+        const createEntries = async (items, type, status, targetList) => {
+            // spliceRandomSubset ile havuzdan tüketerek seçiyoruz
+            const selectedItems = spliceRandomSubset(items, 10); 
+            
+            for (const item of selectedItems) {
+                // LibraryEntry
+                const entry = await LibraryEntry.create({
+                    user: user._id,
+                    list: targetList._id,
+                    item: item._id,
+                    itemModel: type,
+                    status: status
+                });
+
+                // Activity
+                await Activity.create({
+                    user: user._id,
+                    type: 'LIBRARY_ENTRY_CREATED',
+                    subject: entry._id,
+                    subjectModel: 'LibraryEntry'
+                });
+
+                // 6. & 7. Rating ve Review (Sadece WATCHED/READ olanlar için)
+                if (status === 'WATCHED' || status === 'READ') {
+                    const rating = getRandomInt(1, 10);
+                    const hasText = Math.random() < 0.3; // %30 şansla metin ekle
+                    
+                    const reviewData = {
+                        user: user._id,
+                        item: item._id,
+                        itemModel: type,
+                        rating: rating,
+                        text: hasText ? getReviewText(rating) : undefined
+                    };
+
+                    const review = await Review.create(reviewData);
+                    
+                    // Review Activity
+                    if (hasText) {
+                         await Activity.create({
+                            user: user._id,
+                            type: 'REVIEW_CREATED',
+                            subject: review._id,
+                            subjectModel: 'Review'
+                        });
+                    }
+                    
+                    // İstatistikleri güncelle (Denormalizasyon)
+                    await Review.calculateStats(item._id, type);
+                }
+            }
+        };
+
+        // 4. & 5. Listelere Ekle (Kopyalanmış havuzları kullan)
+        // Books
+        await createEntries(userAvailableBooks, 'Book', 'READ', myBooksList); // 10 Read (Ratingli)
+        await createEntries(userAvailableBooks, 'Book', 'WANT_TO_READ', myBooksList); // 10 Want
+        await createEntries(userAvailableBooks, 'Book', 'READING', customBookList); // 10 Reading (Custom List)
+
+        // Movies
+        await createEntries(userAvailableMovies, 'Movie', 'WATCHED', myMoviesList); // 10 Watched (Ratingli)
+        await createEntries(userAvailableMovies, 'Movie', 'WANT_TO_WATCH', myMoviesList); // 10 Want
+        await createEntries(userAvailableMovies, 'Movie', 'WATCHING', customMovieList); // 10 Watching (Custom List)
+    }
+
+    console.log('✅ Data successfully loaded!');
   } catch (err) {
-    console.error('Import Error:', err);
+    console.error(err);
   }
   process.exit();
 };
 
-if (process.argv[2] === '--import') {
-  importData();
-} else if (process.argv[2] === '--delete') {
-  deleteData();
+// Komut satırı argümanlarını işle
+const arg = process.argv[2];
+
+if (arg === '--import') {
+    connectDB().then(() => importData());
+} else if (arg === '--delete') {
+    connectDB().then(() => deleteData().then(() => process.exit()));
+} else {
+    console.log('Please specify --import or --delete');
+    process.exit(1);
 }

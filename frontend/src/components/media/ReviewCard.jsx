@@ -14,6 +14,9 @@ const RatingBadge = ({ rating }) => {
 };
 
 const ReviewCard = ({ review, onEdit, onDelete, showMediaInfo = false, hideUserHeader = false }) => {
+  // Guard clause: If review or review.user is missing, don't render anything.
+  if (!review || !review.user) return null;
+
   const { user } = useAuth();
   
   // Kullanıcı ID'sini güvenli bir şekilde al

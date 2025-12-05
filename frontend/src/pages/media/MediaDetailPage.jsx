@@ -22,6 +22,7 @@ const MediaDetailPage = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
   const [userReview, setUserReview] = useState(null);
+  const [reviewRefreshTrigger, setReviewRefreshTrigger] = useState(0); // Trigger for ReviewSection
 
   // Fetch Item Details and User Review
   const fetchDetails = async (isSilent = false) => {
@@ -89,15 +90,15 @@ const MediaDetailPage = () => {
   const handleRatingSuccess = (newRating) => {
       setIsRatingModalOpen(false);
       
-      // Optimistic Update
+      // Optimistic Update for Header
       if (userReview) {
           setUserReview({ ...userReview, rating: newRating });
       } else {
-          // Yeni review ise (geçici ID ve user ile)
           setUserReview({ rating: newRating, user: { id: user.id || user._id } });
       }
 
-      fetchDetails(true); // Silent refresh
+      fetchDetails(true); // Silent refresh for header details
+      setReviewRefreshTrigger(prev => prev + 1); // Trigger ReviewSection refresh
   };
 
   const handleWriteReviewClick = () => {
@@ -164,6 +165,7 @@ const MediaDetailPage = () => {
                 item={item} 
                 itemModel={type === 'book' ? 'Book' : 'Movie'} 
                 onReviewUpdate={() => fetchDetails(true)} // Update main page silently
+                refreshTrigger={reviewRefreshTrigger}
             />
         </div>
       )}

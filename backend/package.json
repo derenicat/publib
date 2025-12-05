@@ -10,7 +10,9 @@
     "lint": "eslint . --ext .js",
     "lint:fix": "eslint . --ext .js --fix",
     "import-data": "node dev/import-dev-data.js --import",
-    "delete-data": "node dev/import-dev-data.js --delete"
+    "delete-data": "node dev/import-dev-data.js --delete",
+    "seed:fetch-movies": "node dev/fetch-real-data.js --type=movie",
+    "seed:fetch-books": "node dev/fetch-real-data.js --type=book"
   },
   "dependencies": {
     "axios": "^1.13.2",

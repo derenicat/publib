@@ -5,9 +5,19 @@ import config from '../config/env.js';
 // Uygulama içinden e-posta göndermek için `nodemailer` kütüphanesini kullanır.
 // Şifre sıfırlama, kullanıcı doğrulama gibi işlemlerde kullanılır.
 const sendEmail = async (options) => {
+  // const transporter = nodemailer.createTransport({
+  //   host: config.EMAIL_HOST,
+  //   port: config.EMAIL_PORT,
+  //   auth: {
+  //     user: config.EMAIL_USERNAME,
+  //     pass: config.EMAIL_PASSWORD,
+  //   },
+  // });
+
   const transporter = nodemailer.createTransport({
     host: config.EMAIL_HOST,
     port: config.EMAIL_PORT,
+    secure: config.EMAIL_PORT == 465,
     auth: {
       user: config.EMAIL_USERNAME,
       pass: config.EMAIL_PASSWORD,

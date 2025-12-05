@@ -36,8 +36,8 @@ const userListSchema = new mongoose.Schema({
   toObject: { virtuals: true },
 });
 
-// Bir kullanıcının aynı isimde iki listesi olamaz
-userListSchema.index({ user: 1, name: 1 }, { unique: true });
+// Bir kullanıcının aynı isimde ve aynı türde iki listesi olamaz
+userListSchema.index({ user: 1, name: 1, type: 1 }, { unique: true });
 
 // Sanal (Virtual) populate ile UserList'e ait olan libraryEntry'leri çekiyoruz.
 userListSchema.virtual('entries', {

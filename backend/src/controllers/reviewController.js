@@ -1,6 +1,12 @@
 import * as reviewService from '../services/reviewService.js';
 import catchAsync from '../utils/catchAsync.js';
 
+// Middleware to filter reviews by the logged-in user
+export const getMyReviews = (req, res, next) => {
+  req.query.user = req.user.id;
+  next();
+};
+
 export const getAllReviews = catchAsync(async (req, res, next) => {
   // Filtreleme artık sorgu parametrelerine göre servis tarafından yapılıyor
   const reviews = await reviewService.getAllReviews(req.query);

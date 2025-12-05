@@ -14,24 +14,803 @@
     "role": "user"
   },
   {
-    "username": "janesmith",
-    "email": "jane.smith@example.com",
+    "username": "jamesflores738",
+    "email": "jamesflores738@example.com",
     "password": "password123",
     "passwordConfirm": "password123",
-    "role": "user"
+    "role": "user",
+    "bio": "Hello! I'm James, enjoying Publib."
   },
   {
-    "username": "peterjones",
-    "email": "peter.jones@example.com",
+    "username": "jackpeterson834",
+    "email": "jackpeterson834@example.com",
     "password": "password123",
     "passwordConfirm": "password123",
-    "role": "user"
+    "role": "user",
+    "bio": "Hello! I'm Jack, enjoying Publib."
   },
   {
-    "username": "marywilliams",
-    "email": "mary.williams@example.com",
+    "username": "dennisross887",
+    "email": "dennisross887@example.com",
     "password": "password123",
     "passwordConfirm": "password123",
-    "role": "user"
+    "role": "user",
+    "bio": "Hello! I'm Dennis, enjoying Publib."
+  },
+  {
+    "username": "lisarobinson216",
+    "email": "lisarobinson216@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Lisa, enjoying Publib."
+  },
+  {
+    "username": "ashleymendoza961",
+    "email": "ashleymendoza961@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Ashley, enjoying Publib."
+  },
+  {
+    "username": "jasonbennett111",
+    "email": "jasonbennett111@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Jason, enjoying Publib."
+  },
+  {
+    "username": "timothyking105",
+    "email": "timothyking105@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Timothy, enjoying Publib."
+  },
+  {
+    "username": "elizabeththomas707",
+    "email": "elizabeththomas707@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Elizabeth, enjoying Publib."
+  },
+  {
+    "username": "catherinemendoza812",
+    "email": "catherinemendoza812@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Catherine, enjoying Publib."
+  },
+  {
+    "username": "justinyoung494",
+    "email": "justinyoung494@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Justin, enjoying Publib."
+  },
+  {
+    "username": "laurahoward829",
+    "email": "laurahoward829@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Laura, enjoying Publib."
+  },
+  {
+    "username": "josephhill838",
+    "email": "josephhill838@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Joseph, enjoying Publib."
+  },
+  {
+    "username": "angelarichardson975",
+    "email": "angelarichardson975@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Angela, enjoying Publib."
+  },
+  {
+    "username": "stephaniewalker908",
+    "email": "stephaniewalker908@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Stephanie, enjoying Publib."
+  },
+  {
+    "username": "katherinewhite65",
+    "email": "katherinewhite65@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Katherine, enjoying Publib."
+  },
+  {
+    "username": "ashleyross48",
+    "email": "ashleyross48@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Ashley, enjoying Publib."
+  },
+  {
+    "username": "bettytaylor467",
+    "email": "bettytaylor467@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Betty, enjoying Publib."
+  },
+  {
+    "username": "erickelly282",
+    "email": "erickelly282@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Eric, enjoying Publib."
+  },
+  {
+    "username": "nicholashoward858",
+    "email": "nicholashoward858@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Nicholas, enjoying Publib."
+  },
+  {
+    "username": "catherineking783",
+    "email": "catherineking783@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Catherine, enjoying Publib."
+  },
+  {
+    "username": "charlesscott477",
+    "email": "charlesscott477@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Charles, enjoying Publib."
+  },
+  {
+    "username": "michellewalker923",
+    "email": "michellewalker923@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Michelle, enjoying Publib."
+  },
+  {
+    "username": "raymondhernandez189",
+    "email": "raymondhernandez189@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Raymond, enjoying Publib."
+  },
+  {
+    "username": "matthewbailey3",
+    "email": "matthewbailey3@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Matthew, enjoying Publib."
+  },
+  {
+    "username": "jackhernandez764",
+    "email": "jackhernandez764@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Jack, enjoying Publib."
+  },
+  {
+    "username": "michaeledwards240",
+    "email": "michaeledwards240@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Michael, enjoying Publib."
+  },
+  {
+    "username": "williamhall824",
+    "email": "williamhall824@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm William, enjoying Publib."
+  },
+  {
+    "username": "briansmith18",
+    "email": "briansmith18@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Brian, enjoying Publib."
+  },
+  {
+    "username": "richardstewart849",
+    "email": "richardstewart849@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Richard, enjoying Publib."
+  },
+  {
+    "username": "joshuataylor317",
+    "email": "joshuataylor317@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Joshua, enjoying Publib."
+  },
+  {
+    "username": "helenhernandez917",
+    "email": "helenhernandez917@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Helen, enjoying Publib."
+  },
+  {
+    "username": "nancyphillips363",
+    "email": "nancyphillips363@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Nancy, enjoying Publib."
+  },
+  {
+    "username": "barbarafoster367",
+    "email": "barbarafoster367@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Barbara, enjoying Publib."
+  },
+  {
+    "username": "scottthomas950",
+    "email": "scottthomas950@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Scott, enjoying Publib."
+  },
+  {
+    "username": "lisathomas683",
+    "email": "lisathomas683@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Lisa, enjoying Publib."
+  },
+  {
+    "username": "stephenthompson231",
+    "email": "stephenthompson231@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Stephen, enjoying Publib."
+  },
+  {
+    "username": "frankperez277",
+    "email": "frankperez277@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Frank, enjoying Publib."
+  },
+  {
+    "username": "ruthbrown658",
+    "email": "ruthbrown658@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Ruth, enjoying Publib."
+  },
+  {
+    "username": "stevenmendoza152",
+    "email": "stevenmendoza152@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Steven, enjoying Publib."
+  },
+  {
+    "username": "josephmorales690",
+    "email": "josephmorales690@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Joseph, enjoying Publib."
+  },
+  {
+    "username": "georgetorres532",
+    "email": "georgetorres532@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm George, enjoying Publib."
+  },
+  {
+    "username": "timothyjimenez894",
+    "email": "timothyjimenez894@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Timothy, enjoying Publib."
+  },
+  {
+    "username": "elizabethcruz643",
+    "email": "elizabethcruz643@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Elizabeth, enjoying Publib."
+  },
+  {
+    "username": "katherinelewis322",
+    "email": "katherinelewis322@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Katherine, enjoying Publib."
+  },
+  {
+    "username": "briangray989",
+    "email": "briangray989@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Brian, enjoying Publib."
+  },
+  {
+    "username": "kathleenjones346",
+    "email": "kathleenjones346@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Kathleen, enjoying Publib."
+  },
+  {
+    "username": "janetbrown712",
+    "email": "janetbrown712@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Janet, enjoying Publib."
+  },
+  {
+    "username": "patricknguyen864",
+    "email": "patricknguyen864@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Patrick, enjoying Publib."
+  },
+  {
+    "username": "dennisgarcia255",
+    "email": "dennisgarcia255@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Dennis, enjoying Publib."
+  },
+  {
+    "username": "markmurphy272",
+    "email": "markmurphy272@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Mark, enjoying Publib."
+  },
+  {
+    "username": "georgewilliams266",
+    "email": "georgewilliams266@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm George, enjoying Publib."
+  },
+  {
+    "username": "ashleyruiz181",
+    "email": "ashleyruiz181@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Ashley, enjoying Publib."
+  },
+  {
+    "username": "garyjimenez543",
+    "email": "garyjimenez543@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Gary, enjoying Publib."
+  },
+  {
+    "username": "sandramitchell812",
+    "email": "sandramitchell812@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Sandra, enjoying Publib."
+  },
+  {
+    "username": "elizabethflores629",
+    "email": "elizabethflores629@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Elizabeth, enjoying Publib."
+  },
+  {
+    "username": "kennethpatel513",
+    "email": "kennethpatel513@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Kenneth, enjoying Publib."
+  },
+  {
+    "username": "kevincook883",
+    "email": "kevincook883@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Kevin, enjoying Publib."
+  },
+  {
+    "username": "rebeccagreen359",
+    "email": "rebeccagreen359@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Rebecca, enjoying Publib."
+  },
+  {
+    "username": "samanthaadams335",
+    "email": "samanthaadams335@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Samantha, enjoying Publib."
+  },
+  {
+    "username": "nicholasmurphy508",
+    "email": "nicholasmurphy508@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Nicholas, enjoying Publib."
+  },
+  {
+    "username": "christopherjohnson402",
+    "email": "christopherjohnson402@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Christopher, enjoying Publib."
+  },
+  {
+    "username": "jeffreysmith840",
+    "email": "jeffreysmith840@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Jeffrey, enjoying Publib."
+  },
+  {
+    "username": "samuelmendoza199",
+    "email": "samuelmendoza199@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Samuel, enjoying Publib."
+  },
+  {
+    "username": "richardcampbell278",
+    "email": "richardcampbell278@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Richard, enjoying Publib."
+  },
+  {
+    "username": "jenniferreyes414",
+    "email": "jenniferreyes414@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Jennifer, enjoying Publib."
+  },
+  {
+    "username": "jacklewis115",
+    "email": "jacklewis115@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Jack, enjoying Publib."
+  },
+  {
+    "username": "timothyrogers566",
+    "email": "timothyrogers566@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Timothy, enjoying Publib."
+  },
+  {
+    "username": "danielmartin479",
+    "email": "danielmartin479@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Daniel, enjoying Publib."
+  },
+  {
+    "username": "deborahramirez520",
+    "email": "deborahramirez520@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Deborah, enjoying Publib."
+  },
+  {
+    "username": "jerrywalker517",
+    "email": "jerrywalker517@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Jerry, enjoying Publib."
+  },
+  {
+    "username": "donnabaker545",
+    "email": "donnabaker545@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Donna, enjoying Publib."
+  },
+  {
+    "username": "annagomez61",
+    "email": "annagomez61@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Anna, enjoying Publib."
+  },
+  {
+    "username": "donnajohnson452",
+    "email": "donnajohnson452@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Donna, enjoying Publib."
+  },
+  {
+    "username": "brandonhill737",
+    "email": "brandonhill737@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Brandon, enjoying Publib."
+  },
+  {
+    "username": "cynthiawood143",
+    "email": "cynthiawood143@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Cynthia, enjoying Publib."
+  },
+  {
+    "username": "amyward728",
+    "email": "amyward728@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Amy, enjoying Publib."
+  },
+  {
+    "username": "matthewbrown426",
+    "email": "matthewbrown426@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Matthew, enjoying Publib."
+  },
+  {
+    "username": "sarahclark32",
+    "email": "sarahclark32@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Sarah, enjoying Publib."
+  },
+  {
+    "username": "georgeross245",
+    "email": "georgeross245@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm George, enjoying Publib."
+  },
+  {
+    "username": "gregorytorres194",
+    "email": "gregorytorres194@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Gregory, enjoying Publib."
+  },
+  {
+    "username": "larrynguyen0",
+    "email": "larrynguyen0@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Larry, enjoying Publib."
+  },
+  {
+    "username": "paulreed177",
+    "email": "paulreed177@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Paul, enjoying Publib."
+  },
+  {
+    "username": "jacobmorris486",
+    "email": "jacobmorris486@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Jacob, enjoying Publib."
+  },
+  {
+    "username": "josephlong873",
+    "email": "josephlong873@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Joseph, enjoying Publib."
+  },
+  {
+    "username": "robertcampbell705",
+    "email": "robertcampbell705@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Robert, enjoying Publib."
+  },
+  {
+    "username": "kathleencollins688",
+    "email": "kathleencollins688@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Kathleen, enjoying Publib."
+  },
+  {
+    "username": "raymondprice377",
+    "email": "raymondprice377@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Raymond, enjoying Publib."
+  },
+  {
+    "username": "virginiapeterson685",
+    "email": "virginiapeterson685@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Virginia, enjoying Publib."
+  },
+  {
+    "username": "rachelbennett380",
+    "email": "rachelbennett380@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Rachel, enjoying Publib."
+  },
+  {
+    "username": "andrewallen663",
+    "email": "andrewallen663@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Andrew, enjoying Publib."
+  },
+  {
+    "username": "garymurphy597",
+    "email": "garymurphy597@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Gary, enjoying Publib."
+  },
+  {
+    "username": "anthonyjones393",
+    "email": "anthonyjones393@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Anthony, enjoying Publib."
+  },
+  {
+    "username": "sandrahill54",
+    "email": "sandrahill54@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Sandra, enjoying Publib."
+  },
+  {
+    "username": "kimberlytorres963",
+    "email": "kimberlytorres963@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Kimberly, enjoying Publib."
+  },
+  {
+    "username": "ruthgreen382",
+    "email": "ruthgreen382@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Ruth, enjoying Publib."
+  },
+  {
+    "username": "sandracollins682",
+    "email": "sandracollins682@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Sandra, enjoying Publib."
+  },
+  {
+    "username": "carolynwatson848",
+    "email": "carolynwatson848@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Carolyn, enjoying Publib."
+  },
+  {
+    "username": "christopherwatson774",
+    "email": "christopherwatson774@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Christopher, enjoying Publib."
+  },
+  {
+    "username": "justingonzalez404",
+    "email": "justingonzalez404@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Justin, enjoying Publib."
+  },
+  {
+    "username": "dorothyyoung466",
+    "email": "dorothyyoung466@example.com",
+    "password": "password123",
+    "passwordConfirm": "password123",
+    "role": "user",
+    "bio": "Hello! I'm Dorothy, enjoying Publib."
   }
 ]

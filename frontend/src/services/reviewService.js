@@ -24,6 +24,12 @@ const reviewService = {
     return response.data;
   },
 
+  // Giriş yapmış kullanıcının yorumlarını getir
+  getMyReviews: async (params = {}) => {
+    const response = await api.get('/reviews/me', { params });
+    return response.data;
+  },
+
   // Tek bir yorumu ID'sine göre getir
   getReviewById: async (reviewId) => {
     const response = await api.get(`/reviews/${reviewId}`);

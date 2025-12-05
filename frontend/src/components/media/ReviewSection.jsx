@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { PencilSquareIcon, UserCircleIcon, TrashIcon } from '@heroicons/react/24/solid';
 import toast from 'react-hot-toast';
 
-const ReviewSection = ({ item, itemModel, onReviewUpdate }) => {
+const ReviewSection = ({ item, itemModel, onReviewUpdate, refreshTrigger }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -24,6 +24,7 @@ const ReviewSection = ({ item, itemModel, onReviewUpdate }) => {
     try {
       const response = await reviewService.getItemReviews(itemId, itemModel);
       if (response.data && response.data.reviews) {
+        // Store ALL reviews to ensure we can find the user's rating-only review
         setReviews(response.data.reviews);
       }
     } catch (err) {
@@ -38,13 +39,12 @@ const ReviewSection = ({ item, itemModel, onReviewUpdate }) => {
     if (itemId && itemModel) {
       fetchReviews();
     }
-  }, [itemId, itemModel]);
+  }, [itemId, itemModel, refreshTrigger]);
 
   const handleReviewSuccess = (message) => {
-    // toast.success(message || 'Review saved successfully!'); // Çifte toast'ı önlemek için kaldırıldı (Modal zaten gösteriyor)
     fetchReviews(); 
     setEditReviewData(null);
-    if (onReviewUpdate) onReviewUpdate(); // Ana sayfayı güncelle
+    if (onReviewUpdate) onReviewUpdate();
   };
 
   const handleWriteReviewClick = () => {
@@ -93,7 +93,7 @@ const ReviewSection = ({ item, itemModel, onReviewUpdate }) => {
                             error: (err) => <b>{err.response?.data?.message || 'Failed to delete review.'}</b>,
                         }).then(() => {
                             fetchReviews();
-                            if (onReviewUpdate) onReviewUpdate(); // Ana sayfayı güncelle
+                            if (onReviewUpdate) onReviewUpdate();
                         });
                     }}
                     className="w-full border border-transparent rounded-none rounded-r-lg p-4 flex items-center justify-center text-sm font-medium text-red-400 hover:text-white hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500"
@@ -111,12 +111,30 @@ const ReviewSection = ({ item, itemModel, onReviewUpdate }) => {
     ), { duration: Infinity });
   };
 
-  const currentUserId = user?.id || user?._id || user?.detailPageId;
-  const myReview = reviews.find(r => {
-      const rUserId = r.user.detailPageId || r.user.id || r.user._id;
+  // Mevcut kullanıcının yorumunu bul ve sadece text alanı doluysa geçerli kabul et
+  const currentUserId = user?.id;
+  
+  const rawMyReview = reviews.find(r => {
+      const rUserId = r.user.detailPageId || r.user.id || r.user._id || r.user;
+      // toString() kullanarak güvenli karşılaştırma yap
       return currentUserId && rUserId && currentUserId.toString() === rUserId.toString();
   });
-  const otherReviews = reviews.filter(r => r !== myReview);
+
+  console.log('[ReviewSection] Debug:', { currentUserId, rawMyReview, reviewsCount: reviews.length });
+
+  // "Your Review" kısmında göstermek için: Sadece text varsa
+  const myReview = (rawMyReview && rawMyReview.text && rawMyReview.text.trim().length > 0) ? rawMyReview : null;
+  
+  // "Community Reviews" için: Benim yorumum olmayan VE text alanı dolu olanlar
+  const otherReviews = reviews.filter(r => {
+      const rId = r.id || r._id;
+      const rawId = rawMyReview?.id || rawMyReview?._id;
+      // Kendi yorumumuzu hariç tut
+      if (rawId && rId === rawId) return false;
+      // Text alanı dolu mu kontrol et
+      return r.text && r.text.trim().length > 0;
+  });
+
 
   if (loading) {
     return (
@@ -148,7 +166,7 @@ const ReviewSection = ({ item, itemModel, onReviewUpdate }) => {
                 Your Review
             </h3>
             <ReviewCard 
-              key={myReview.id || myReview._id} 
+              key={myReview.id} 
               review={myReview} 
               onEdit={handleEditReview} 
               onDelete={handleDeleteReview} 
@@ -161,7 +179,7 @@ const ReviewSection = ({ item, itemModel, onReviewUpdate }) => {
             <h3 className="text-lg font-semibold text-white mb-4">Community Reviews ({otherReviews.length})</h3>
         )}
         
-        {otherReviews.length === 0 && !myReview ? (
+        {otherReviews.length === 0 && !myReview ? ( // myReview da yoksa ve diğer yorumlar da yoksa
             <div className="text-center py-12 bg-surface rounded-2xl border border-border border-dashed">
             <p className="text-secondary">No reviews yet. Be the first to share your thoughts!</p>
             </div>
@@ -169,7 +187,7 @@ const ReviewSection = ({ item, itemModel, onReviewUpdate }) => {
             <div className="grid grid-cols-1 gap-6">
             {otherReviews.map((review) => (
                 <ReviewCard 
-                key={review.id || review._id} 
+                key={review.id} 
                 review={review} 
                 onEdit={() => {}} 
                 onDelete={() => {}} 
@@ -186,6 +204,8 @@ const ReviewSection = ({ item, itemModel, onReviewUpdate }) => {
         initialData={editReviewData}
         item={item}
         itemModel={itemModel}
+        existingRating={rawMyReview?.rating}
+        existingReview={rawMyReview} // Pass the full existing review object for upsert logic
       />
     </div>
   );
