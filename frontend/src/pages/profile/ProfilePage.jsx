@@ -28,16 +28,27 @@ const ProfilePage = () => {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
 
-  // Fetch Profile User (External User by ID)
+  // Fetch Profile User (Unified Logic)
   useEffect(() => {
     const fetchProfileUser = async () => {
-      if (!id) return; // Sadece ID varsa çalış
+      if (authLoading) return; // Wait for auth to initialize
+
+      const targetUserId = id || currentUser?.id;
+      
+      if (!targetUserId) {
+          setLoading(false); // Stop loading if no user ID found
+          return;
+      }
 
       setLoading(true);
-      console.log('[DEBUG] Fetching user profile for ID:', id);
+      console.log('[DEBUG] Fetching user profile for ID:', targetUserId);
+      
       try {
-        const response = await userService.getUserById(id);
+        // Her durumda (kendi profilimiz olsa bile) backend'den taze veri çekiyoruz.
+        // Böylece follow istatistikleri (followersCount, followingCount) her zaman gelir.
+        const response = await userService.getUserById(targetUserId);
         console.log('[DEBUG] User profile response:', response);
+        
         if (response.data && response.data.user) {
           setProfileUser(response.data.user);
         }
@@ -50,20 +61,9 @@ const ProfilePage = () => {
     };
 
     fetchProfileUser();
-  }, [id]); // Sadece ID değişince çalışır
+  }, [id, currentUser, authLoading]); // currentUser değişirse (örn: login olunca) tekrar çalışsın
 
-  // Set Profile User (Own Profile)
-  useEffect(() => {
-    if (!id && currentUser) {
-      // ID yoksa ve currentUser varsa, profil kullanıcısı currentUser'dır.
-      // Loading yapmaya gerek yok çünkü currentUser zaten authContext'ten geliyor.
-      setProfileUser(currentUser);
-      setLoading(false);
-    } else if (!id && authLoading) {
-       // Kendi profilimiz ama auth yükleniyor
-       setLoading(true);
-    }
-  }, [id, currentUser, authLoading]);
+
 
   useEffect(() => {
       if (profileUser) {

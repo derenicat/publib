@@ -8,6 +8,13 @@ export const aliasTopMovies = (req, res, next) => {
   next();
 };
 
+export const aliasMostPopularMovies = (req, res, next) => {
+  req.query.limit = '5';
+  req.query.sort = '-ratingsCount,-averageRating';
+  req.query.fields = 'title,posterPath,averageRating,ratingsCount,releaseDate,detailPageId';
+  next();
+};
+
 export const getAllMovies = catchAsync(async (req, res, next) => {
   // "Discover" akışı: Sadece yerel veritabanımızdaki mevcut filmleri listeler.
   console.log('getAllMovies controller called');

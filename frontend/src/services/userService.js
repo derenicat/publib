@@ -44,6 +44,12 @@ const userService = {
     return response.data;
   },
 
+  // Şifre güncelle (Giriş yapmış kullanıcı için)
+  updatePassword: async (passwordData) => {
+    const response = await api.patch('/users/update-my-password', passwordData);
+    return response.data;
+  },
+
   // Kullanıcı adı ile arama yap
   searchUsers: async (username) => {
     const response = await api.get(`/users`, { params: { username } });

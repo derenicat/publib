@@ -7,24 +7,27 @@ import { StarIcon, FilmIcon, BookOpenIcon, ArrowRightIcon } from '@heroicons/rea
 const HomePage = () => {
   const [topMovies, setTopMovies] = useState([]);
   const [topBooks, setTopBooks] = useState([]);
+  const [popularMovies, setPopularMovies] = useState([]);
+  const [popularBooks, setPopularBooks] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('movie'); // 'movie' or 'book'
+  const [activeTab, setActiveTab] = useState('movie'); // 'movie' or 'book' for Top Rated
+  const [activePopularTab, setActivePopularTab] = useState('movie'); // 'movie' or 'book' for Most Popular
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const [moviesRes, booksRes] = await Promise.all([
+        const [moviesRes, booksRes, popMoviesRes, popBooksRes] = await Promise.all([
           movieService.getTopRated(),
-          bookService.getTopRated()
+          bookService.getTopRated(),
+          movieService.getMostPopular(),
+          bookService.getMostPopular()
         ]);
         
-        if (moviesRes.data && moviesRes.data.movies) {
-            setTopMovies(moviesRes.data.movies);
-        }
-        if (booksRes.data && booksRes.data.books) {
-            setTopBooks(booksRes.data.books);
-        }
+        if (moviesRes.data && moviesRes.data.movies) setTopMovies(moviesRes.data.movies);
+        if (booksRes.data && booksRes.data.books) setTopBooks(booksRes.data.books);
+        if (popMoviesRes.data && popMoviesRes.data.movies) setPopularMovies(popMoviesRes.data.movies);
+        if (popBooksRes.data && popBooksRes.data.books) setPopularBooks(popBooksRes.data.books);
 
       } catch (err) {
         console.error('Failed to fetch home data:', err);
@@ -46,12 +49,11 @@ const HomePage = () => {
     );
   };
 
-  const renderContent = () => {
-      const items = activeTab === 'movie' ? topMovies : topBooks;
-      const isMovie = activeTab === 'movie';
+  const renderContent = (items, type) => {
+      const isMovie = type === 'movie';
 
       if (items.length === 0) {
-          return <div className="text-secondary text-center py-10">No top rated items found.</div>;
+          return <div className="text-secondary text-center py-10">No items found.</div>;
       }
 
       return (
@@ -121,13 +123,12 @@ const HomePage = () => {
         </div>
       </div>
 
-      {/* Top Rated Section with Toggle */}
+      {/* Top Rated Section */}
       <section className="mb-16">
         <div className="flex flex-col sm:flex-row items-center justify-between mb-8 gap-4">
             <div className="flex items-center gap-6">
                 <h2 className="text-3xl font-bold text-white">Top Rated</h2>
                 
-                {/* Custom Toggle */}
                 <div className="flex bg-surface border border-border rounded-lg p-1">
                     <button 
                         onClick={() => setActiveTab('movie')}
@@ -157,27 +158,65 @@ const HomePage = () => {
                 className="text-brand-400 hover:text-brand-300 font-semibold text-sm flex items-center gap-1 transition-colors"
             >
                 View All {activeTab === 'movie' ? 'Movies' : 'Books'}
-                <ArrowRightIcon className="h-4 w-4" /> {/* Heroicon ArrowRightIcon */}
+                <ArrowRightIcon className="h-4 w-4" />
             </Link>
         </div>
-
-        {/* Content Grid */}
-        {renderContent()}
-
+        {renderContent(activeTab === 'movie' ? topMovies : topBooks, activeTab)}
       </section>
 
-      {/* Feature Cards (Static for now) */}
+      {/* Most Popular Section */}
+      <section className="mb-16">
+        <div className="flex flex-col sm:flex-row items-center justify-between mb-8 gap-4">
+            <div className="flex items-center gap-6">
+                <h2 className="text-3xl font-bold text-white">Most Popular</h2>
+                
+                <div className="flex bg-surface border border-border rounded-lg p-1">
+                    <button 
+                        onClick={() => setActivePopularTab('movie')}
+                        className={`px-4 py-1.5 rounded-md text-sm font-semibold transition-all ${
+                            activePopularTab === 'movie' 
+                            ? 'bg-brand-600 text-white shadow-sm' 
+                            : 'text-secondary hover:text-white'
+                        }`}
+                    >
+                        Movies
+                    </button>
+                    <button 
+                        onClick={() => setActivePopularTab('book')}
+                        className={`px-4 py-1.5 rounded-md text-sm font-semibold transition-all ${
+                            activePopularTab === 'book' 
+                            ? 'bg-brand-600 text-white shadow-sm' 
+                            : 'text-secondary hover:text-white'
+                        }`}
+                    >
+                        Books
+                    </button>
+                </div>
+            </div>
+
+            <Link 
+                to={`/discover?type=${activePopularTab}&sort=-ratingsCount`} 
+                className="text-brand-400 hover:text-brand-300 font-semibold text-sm flex items-center gap-1 transition-colors"
+            >
+                View All {activePopularTab === 'movie' ? 'Movies' : 'Books'}
+                <ArrowRightIcon className="h-4 w-4" />
+            </Link>
+        </div>
+        {renderContent(activePopularTab === 'movie' ? popularMovies : popularBooks, activePopularTab)}
+      </section>
+
+      {/* Feature Cards */}
       <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Link to="/discover?type=movie" className="block p-8 rounded-3xl bg-linear-to-br from-surface to-surface-accent border border-border hover:border-brand-500/50 hover:shadow-2xl transition-all group">
             <div className="h-12 w-12 bg-blue-500/20 rounded-xl flex items-center justify-center mb-4 text-blue-400 group-hover:scale-110 transition-transform">
-                <FilmIcon className="h-6 w-6" /> {/* Heroicon FilmIcon */}
+                <FilmIcon className="h-6 w-6" />
             </div>
             <h3 className="text-2xl font-bold text-white mb-2">Discover Movies</h3>
             <p className="text-secondary">Explore the latest releases, trending films, and hidden gems tailored to your taste.</p>
         </Link>
         <Link to="/discover?type=book" className="block p-8 rounded-3xl bg-linear-to-br from-surface to-surface-accent border border-border hover:border-brand-500/50 hover:shadow-2xl transition-all group">
             <div className="h-12 w-12 bg-purple-500/20 rounded-xl flex items-center justify-center mb-4 text-purple-400 group-hover:scale-110 transition-transform">
-                <BookOpenIcon className="h-6 w-6" /> {/* Heroicon BookOpenIcon */}
+                <BookOpenIcon className="h-6 w-6" />
             </div>
             <h3 className="text-2xl font-bold text-white mb-2">Explore Books</h3>
             <p className="text-secondary">Find your next great read, track your progress, and share reviews with the community.</p>

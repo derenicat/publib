@@ -34,6 +34,17 @@ const MOVIE_GENRES = [
   'Western',
 ];
 
+// BISAC Subject Headings for Books
+const BOOK_GENRES = [
+  "Fiction", "Science Fiction", "Fantasy", "Mystery", "Thriller", "Romance", "Historical Fiction", "Horror", "Young Adult",
+  "Juvenile Fiction", "Juvenile Nonfiction",
+  "Biography & Autobiography", "History", "Science", "Technology", "Computers", "Business & Economics", "Self-Help", "Psychology", "Philosophy", "Religion",
+  "Cooking", "Travel", "Art", "Photography", "Music", "Performing Arts", "Poetry", "Comics & Graphic Novels", "Education", "Social Science",
+  "Political Science", "Law", "True Crime", "Health & Fitness", "Medical", "Sports & Recreation", "Games & Activities", "Crafts & Hobbies",
+  "House & Home", "Gardening", "Pets", "Nature", "Antiques & Collectibles", "Transportation", "Architecture", "Design", "Literary Criticism",
+  "Language Arts & Disciplines", "Reference", "Study Aids"
+];
+
 // Son 100 yılı kapsayan on yıllar (2020, 2010, 2000, ...)
 const CURRENT_YEAR = new Date().getFullYear();
 const START_DECADE = Math.floor(CURRENT_YEAR / 10) * 10;
@@ -215,20 +226,18 @@ const DiscoveryPage = () => {
             </select>
 
             {/* Genre */}
-            {activeTab === 'movie' && (
-                <select
-                value={genre}
-                onChange={(e) => setGenre(e.target.value)}
-                className="bg-background border border-border rounded-lg px-4 py-2 text-white focus:outline-none focus:border-brand-500"
-                >
-                <option value="">All Genres</option>
-                {MOVIE_GENRES.map((g) => (
-                    <option key={g} value={g}>
-                    {g}
-                    </option>
-                ))}
-                </select>
-            )}
+            <select
+              value={genre}
+              onChange={(e) => setGenre(e.target.value)}
+              className="bg-background border border-border rounded-lg px-4 py-2 text-white focus:outline-none focus:border-brand-500"
+            >
+              <option value="">All Genres</option>
+              {(activeTab === 'movie' ? MOVIE_GENRES : BOOK_GENRES).map((g) => (
+                <option key={g} value={g}>
+                  {g}
+                </option>
+              ))}
+            </select>
 
             {/* Decade Filter */}
             <select

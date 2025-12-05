@@ -20,6 +20,11 @@ const movieService = {
     return response.data;
   },
 
+  getMostPopular: async () => {
+    const response = await api.get('/movies/most-popular');
+    return response.data;
+  },
+
   // Film detayını getir
   getMovieDetails: async (id) => {
     const response = await api.get(`/movies/${id}`);

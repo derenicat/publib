@@ -12,6 +12,13 @@ export const aliasTopBooks = (req, res, next) => {
   next();
 };
 
+export const aliasMostPopularBooks = (req, res, next) => {
+  req.query.limit = '5';
+  req.query.sort = '-ratingsCount,-averageRating';
+  req.query.fields = 'title,coverImage,averageRating,ratingsCount,publishedDate,detailPageId,authors';
+  next();
+};
+
 export const getAllBooks = catchAsync(async (req, res, next) => {
   // "Discover" akışı: Sadece yerel veritabanımızdaki mevcut kitapları listeler.
   const books = await serviceGetAllBooks(req.query);

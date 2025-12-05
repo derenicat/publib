@@ -4,6 +4,7 @@ import {
   getBook,
   searchBooks,
   aliasTopBooks,
+  aliasMostPopularBooks,
 } from '../controllers/bookController.js';
 
 const router = express.Router();
@@ -11,6 +12,8 @@ const router = express.Router();
 router.route('/search').get(searchBooks);
 
 router.route('/top-5').get(aliasTopBooks, getAllBooks);
+
+router.route('/most-popular').get(aliasMostPopularBooks, getAllBooks);
 
 router.route('/').get(getAllBooks);
 

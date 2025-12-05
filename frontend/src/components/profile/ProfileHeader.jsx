@@ -1,20 +1,22 @@
 import { useState, useEffect } from 'react';
 import userService from '../../services/userService';
 import { useAuth } from '../../context/AuthContext';
-import EditProfileModal from './EditProfileModal'; // Import EditProfileModal
-import UserListModal from '../users/UserListModal'; // Import UserListModal
-import { PencilIcon } from '@heroicons/react/24/outline'; // Import PencilIcon
-import { useNavigate } from 'react-router-dom'; // useNavigate eklendi
-import toast from 'react-hot-toast'; // toast eklendi
+import EditProfileModal from './EditProfileModal';
+import ChangePasswordModal from './ChangePasswordModal'; // Import ChangePasswordModal
+import UserListModal from '../users/UserListModal';
+import { PencilIcon, KeyIcon } from '@heroicons/react/24/outline'; // Import KeyIcon
+import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { getInitials, formatDate } from '../../utils/helpers';
 
 const ProfileHeader = ({ user, isOwnProfile }) => {
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false); // Modal state
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false); // Password Modal state
   const [userListModal, setUserListModal] = useState({
     isOpen: false,
     type: null,
     title: '',
-  }); // User List Modal state
+  });
   const { user: currentUser, setUser } = useAuth();
   const navigate = useNavigate();
 
@@ -88,9 +90,8 @@ const ProfileHeader = ({ user, isOwnProfile }) => {
   };
 
   // Profil güncellendiğinde sayfayı yenile (basit çözüm)
-  // Daha gelişmiş çözüm: Parent'tan (ProfilePage) bir refresh fonksiyonu almak.
   const handleProfileUpdateSuccess = () => {
-    // window.location.reload(); // Flinch'e sebep olduğu için kaldırıldı. checkAuth context'i güncelliyor.
+    // window.location.reload(); 
   };
 
   const openUserListModal = (type) => {
@@ -131,13 +132,22 @@ const ProfileHeader = ({ user, isOwnProfile }) => {
             {/* Action Buttons */}
             <div>
               {isOwnProfile ? (
-                <button
-                  onClick={() => setIsEditModalOpen(true)}
-                  className="flex items-center gap-2 px-4 py-2 bg-surface-accent hover:bg-border text-white text-sm font-medium rounded-full transition-colors border border-border"
-                >
-                  <PencilIcon className="h-4 w-4" />
-                  Edit Profile
-                </button>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setIsEditModalOpen(true)}
+                    className="flex items-center gap-2 px-4 py-2 bg-surface-accent hover:bg-border text-white text-sm font-medium rounded-full transition-colors border border-border"
+                  >
+                    <PencilIcon className="h-4 w-4" />
+                    Edit Profile
+                  </button>
+                  <button
+                    onClick={() => setIsPasswordModalOpen(true)}
+                    className="flex items-center gap-2 px-4 py-2 bg-surface-accent hover:bg-border text-white text-sm font-medium rounded-full transition-colors border border-border"
+                    title="Change Password"
+                  >
+                    <KeyIcon className="h-4 w-4" />
+                  </button>
+                </div>
               ) : (
                 <button
                   onClick={handleFollowToggle}
@@ -188,12 +198,18 @@ const ProfileHeader = ({ user, isOwnProfile }) => {
         onSuccess={handleProfileUpdateSuccess}
       />
 
+      {/* Change Password Modal */}
+      <ChangePasswordModal
+        isOpen={isPasswordModalOpen}
+        onClose={() => setIsPasswordModalOpen(false)}
+      />
+
       {/* User List Modal (Followers/Following) */}
       <UserListModal
         isOpen={userListModal.isOpen}
         onClose={() => setUserListModal({ ...userListModal, isOpen: false })}
         title={userListModal.title}
-        type={userListModal.type} // type prop'u eklendi
+        type={userListModal.type}
         fetchUsers={() => {
           const userId = user.id || user._id;
           if (userListModal.type === 'followers')

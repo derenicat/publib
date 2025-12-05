@@ -21,6 +21,11 @@ const bookService = {
     return response.data;
   },
 
+  getMostPopular: async () => {
+    const response = await api.get('/books/most-popular');
+    return response.data;
+  },
+
   // Kitap detayını getir
   getBookDetails: async (id) => {
     const response = await api.get(`/books/${id}`);
